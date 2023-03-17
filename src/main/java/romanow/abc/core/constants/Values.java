@@ -37,8 +37,8 @@ public class Values extends ValuesBase {
             "romanow.abc.core.entity.WorkSettings",
             "romanow.abc.dataserver.TNskDataServer",
             "romanow.abc.dataserver.TNskConsoleServer",
-            "romanow.abc.desktop.TNskCabinet",
-            "romanow.abc.desktop.TNskClient",
+            "romanow.abc.desktop.Cabinet",
+            "romanow.abc.desktop.Client",
             "","",""};
     private  final static String EMAppNames[]={
             "tnsk",
@@ -48,7 +48,7 @@ public class Values extends ValuesBase {
             "TNsk.apk",
             "TNskDataserver.jar",
             "romanow.abc.desktop.module",
-            "/drawable/lecture.png",
+            "/drawable/busstop.png",
             "Транспорт-NSK"
             };
     @Override
