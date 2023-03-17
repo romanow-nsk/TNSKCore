@@ -2,7 +2,7 @@ package romanow.abc.core.prepare;
 
 import romanow.abc.core.ErrorList;
 import romanow.abc.core.entity.nskgortrans.*;
-import romanow.abc.core.entity.*;
+import romanow.abc.core.entity.subjectarea.*;
 import romanow.abc.core.utils.GPSPoint;
 
 import java.util.ArrayList;
@@ -71,7 +71,7 @@ public class GorTransImport {
             }
         };
     //----------------- Вложенная функция поиска оригинальной остановки
-    private void addOriginalTStop(ErrorList log,TRoute vv, TStop stop){
+    private void addOriginalTStop(ErrorList log, TRoute vv, TStop stop){
         TStop stop2 = stops.vnear(stop,cmp1);
         if (stop2 == null){
             TStop xx = new TStop(stop);

@@ -3,6 +3,7 @@ package romanow.abc.core.constants;
 import romanow.abc.core.UniException;
 import romanow.abc.core.entity.*;
 import romanow.abc.core.entity.base.WorkSettingsBase;
+import romanow.abc.core.entity.subjectarea.*;
 import romanow.abc.core.entity.users.User;
 
 import java.util.HashMap;
@@ -95,13 +96,13 @@ public class Values extends ValuesBase {
     protected void initTables(){
         super.initTables();
         EntityIndexedFactory EntityFactory = getEntityFactory();
-        EntityFactory.put(new TableItem("Настройки", WorkSettings.class));
         EntityFactory.put(new TableItem("Точка сегмента", TSegPoint.class));
         EntityFactory.put(new TableItem("Cегмент", TSegment.class));
         EntityFactory.put(new TableItem("Остановка", TStop.class));
         EntityFactory.put(new TableItem("Маршрут", TRoute.class));
         EntityFactory.put(new TableItem("Сегмент маршрута", TRouteSegment.class));
         EntityFactory.put(new TableItem("Остановка маршрута", TRouteStop.class));
+        EntityFactory.put(new TableItem("Настройки", WorkSettings.class));
         HashMap<String,String> PrefixMap = getPrefixMap();
         PrefixMap.put("TSegPoint.gps","g");
         PrefixMap.put("TStop.gps","g");

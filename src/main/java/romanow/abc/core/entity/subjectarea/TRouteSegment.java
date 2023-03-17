@@ -1,11 +1,13 @@
-package romanow.abc.core.entity;
+package romanow.abc.core.entity.subjectarea;
 
 import lombok.Getter;
 import lombok.Setter;
-import romanow.abc.core.prepare.TSegmentList;
+import romanow.abc.core.entity.Entity;
+import romanow.abc.core.entity.EntityLink;
 
-public class TRouteSegment extends Entity{
-    @Getter EntityLink<TRoute> TRoute = new EntityLink<>();                     // Обратная ссылка
+public class TRouteSegment extends Entity {
+    @Getter
+    EntityLink<romanow.abc.core.entity.subjectarea.TRoute> TRoute = new EntityLink<>();                     // Обратная ссылка
     @Getter EntityLink<TSegment> segment = new EntityLink<>(TSegment.class);    //
     @Getter @Setter transient private TSegment near1=null;
     @Getter @Setter transient private TSegment near2=null;
@@ -18,4 +20,6 @@ public class TRouteSegment extends Entity{
     public TRouteSegment(TSegment segment0){
         segment.setOidRef(segment0);
         }
+    public TRouteSegment(){}
+
 }

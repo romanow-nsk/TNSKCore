@@ -1,11 +1,13 @@
-package romanow.abc.core.entity;
+package romanow.abc.core.entity.subjectarea;
 
 import lombok.Getter;
 import romanow.abc.core.entity.Entity;
+import romanow.abc.core.entity.EntityRefList;
 
 public class TSegment extends Entity {
-    @Getter EntityRefList<TSegPoint> points = new EntityRefList<>(TSegPoint.class);     // Точки сегмента
+    @Getter private EntityRefList<TSegPoint> points = new EntityRefList<>(TSegPoint.class);     // Точки сегмента
     public int size() { return points.size(); }
+    public TSegment(){}
     //----------- Манипуляции - сравнения и разрезания -------------------------
     public boolean cmpExactFore(TSegment two){
         if (size() != two.size())
