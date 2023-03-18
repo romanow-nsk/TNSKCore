@@ -29,6 +29,7 @@ public class Values extends ValuesBase {
     // 3. статическая инициализация наследуется
     private final static int EMReleaseNumber=1;                  // номер сборки сервера
     private User superUser = new User(UserSuperAdminType, "Система", "", "", "TNskDataserver", "pi31415926","9130000000");
+    public final static String NskGorTransURL="maps.nskgortrans.ru";
     //-----------------------------------------------------------------------------
     public final static int PopupMessageDelay=6;                // Тайм-аут всплывающего окна
     public final static int PopupLongDelay=20;                  // Тайм-аут всплывающего окна
