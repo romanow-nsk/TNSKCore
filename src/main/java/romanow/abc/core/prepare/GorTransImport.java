@@ -1,5 +1,6 @@
 package romanow.abc.core.prepare;
 
+import lombok.Getter;
 import romanow.abc.core.ErrorList;
 import romanow.abc.core.entity.nskgortrans.*;
 import romanow.abc.core.entity.subjectarea.*;
@@ -13,9 +14,9 @@ import java.util.ArrayList;
  * @author romanow
  */
 public class GorTransImport {
-    private TRouteList routes = new TRouteList();
-    private TStopList stops = new TStopList();
-    private TSegmentList segments = new TSegmentList();
+    @Getter private TRouteList routes = new TRouteList();
+    @Getter private TStopList stops = new TStopList();
+    @Getter private TSegmentList segments = new TSegmentList();
     private int nears=0;
     private int pairs=0;
     //public void importData(DBProfile profile, ProxyParams proxy,ServerLog log) throws Throwable{
@@ -81,7 +82,7 @@ public class GorTransImport {
             }
         else{
             TStop xx = new TStop(stop2);
-            xx.setDiff((int)diff);
+            xx.setDiff(diff);
             vv.getStops().add(new TRouteStop(xx));      // Добавить описатель остановки
             if (diff!=0)                                // Расстояние до одноименной
                 log.addInfo("Расстояние до одноименной "+stop2.getName()+" "+diff);
@@ -120,39 +121,39 @@ public class GorTransImport {
             nears++;
             if (b1>1){
                 log.addInfo("1. "+b1+"("+a1.size()+")="+cline.size());
-                zz.setNear1(a1);
+                zz.getNear1().setRef(a1);
                 zz.setMode1(1);
                 }
             if (b2>1){
                 log.addInfo("2. "+b2+"("+a2.size()+")="+cline.size());
                 if (zz.getNear1() == null){
-                    zz.setNear1(a2);
+                    zz.getNear1().setRef(a2);
                     zz.setMode1(2);
                     }
             else{
-                zz.setNear2(a2);
+                zz.getNear2().setRef(a2);
                 zz.setMode2(2);
                 }
             }
             if (b3>1){
                 log.addInfo("3. "+b3+"("+a3.size()+")="+cline.size());
                 if (zz.getNear1() == null){
-                    zz.setNear1(a3);
+                    zz.getNear1().setRef(a3);
                     zz.setMode1(3);
                     }
                 else{
-                    zz.setNear2(a3);
+                    zz.getNear2().setRef(a3);
                     zz.setMode2(3);
                     }
                 }
             if (b4>1){
                 log.addInfo("4. "+b4+"("+a4.size()+")="+cline.size());
                 if (zz.getNear1() == null){
-                    zz.setNear1(a4);
+                    zz.getNear1().setRef(a4);
                     zz.setMode1(4);
                     }
                 else{
-                    zz.setNear2(a4);
+                    zz.getNear2().setRef(a4);
                     zz.setMode2(4);
                     }
                 }
@@ -160,48 +161,6 @@ public class GorTransImport {
         }
         }
     }
-    //----------------- Вложенная функция сохранения в БД
-    /*
-    public void saveDB(ErrorList log) throws Throwable{
-        //routes.saveTable(conn);
-        log.addInfo("Маршруты сохранены");
-        //stops.save(conn);
-        log.addInfo("Остановки сохранены");
-        //segments.save(conn,log);
-        //DBStatistic xx = new DBStatistic("");
-        for(int ii=0;ii<routes.size();ii++){
-            Route a = routes.get(ii);
-            if (ii%10==0)
-                log.addInfo("Обработано "+ii+" маршрутов");
-            DBItem yy[] = new DBItem[a.segments.size()];
-            for(int jj=0;jj<a.segments.size();jj++){
-                RouteSegment b = a.segments.get(jj);
-                b.orm.idRoute = a.orm.getId();
-                b.orm.idSegment = b.segment.orm.getId();    // Поставить id-ы основных таблиц
-                if (b.near1!=null)
-                    b.orm.idNear1 = b.near1.orm.getId();
-                if (b.near2!=null)
-                    b.orm.idNear2 = b.near2.orm.getId();
-                conn.insert(xx);                            //Чтобы зарезервировать id-ы статистик
-            b.orm.idStatistic = xx.getId();
-            yy[jj] = b.orm;
-            //conn.insert(b.orm);
-            }
-        conn.replace(yy);
-        DBItem zz[] = new DBItem[a.getStops().size()];
-        for(int jj=0;jj<a.getStops().size();jj++){
-        TStop bb = a.getStops().get(jj);
-        DBRouteTStop cc = new DBRouteTStop();
-        cc.diff = (int)bb.diff;                     // Расстояние из этой остановки
-        cc.idRoute = a.orm.getId();
-        cc.idTStop = bb.getId();                     // Поставить id-ы основных таблиц
-        zz[jj] = cc;
-        //conn.insert(cc);
-        }
-        conn.replace(zz);
-        }
-        }
-     */
     //--------------------------------------------------------------------------------
     public void  importData(ErrorList log){
         importData(true,-1,log);
