@@ -4,6 +4,7 @@ import romanow.abc.core.ErrorList;
 import romanow.abc.core.entity.nskgortrans.*;
 import romanow.abc.core.entity.subjectarea.*;
 import romanow.abc.core.utils.GPSPoint;
+import romanow.abc.core.utils.Pair;
 
 import java.util.ArrayList;
 
@@ -12,13 +13,6 @@ import java.util.ArrayList;
  * @author romanow
  */
 public class GorTransImport {
-    public static void main(String args[]) throws Throwable{
-        //importData(new DBLocalProfile("217.71.129.186"));
-        GorTransImport xx = new GorTransImport();
-        ErrorList errorList = new ErrorList();
-        xx.importData(errorList);
-        System.out.println(errorList);
-        }
     private TRouteList routes = new TRouteList();
     private TStopList stops = new TStopList();
     private TSegmentList segments = new TSegmentList();
@@ -210,14 +204,20 @@ public class GorTransImport {
      */
     //--------------------------------------------------------------------------------
     public void  importData(ErrorList log){
-        importData(-1,log);
+        importData(true,-1,log);
         }
-    public void  importData(int routeCount, ErrorList log){
-        GorTransHttpClient xx=new GorTransHttpClient();
+    public void  importData(boolean retrofit, int routeCount, ErrorList log){
+        long tt = System.currentTimeMillis();
+        GorTransHttpClient client1 = new GorTransHttpClient();
+        GorTransAPIClient client2 = new GorTransAPIClient();
         try {
-            ArrayList<GorTransRouteList> data=xx.getRouteList();
+            Pair<String,ArrayList<GorTransRouteList>> data= retrofit ? client1.getRouteList() : client2.getRouteList();
+            if (data.o1!=null){
+                log.addError(data.o1);
+                return;
+                }
             int jj=0;
-            for(GorTransRouteList list : data){
+            for(GorTransRouteList list : data.o2){
                 ArrayList<GorTransRoute> vv = list.getWays();
                 int ttype = list.type;
                 for(int j=0;j<vv.size();j++){
@@ -229,80 +229,95 @@ public class GorTransImport {
             }
         for(int i=0; i<routes.size();i++){
             TRoute vv = routes.get(i);
-            ArrayList<GorTransPoint> trasse = xx.getTrasse(vv.getTType(),vv.getRouteName());
-            if (trasse.size()==0){
+            Pair<String,ArrayList<GorTransPoint>> trasse = retrofit ? client1.getTrasse(vv.getTType(),vv.getRouteName()) :
+                    client2.getTrasse(vv.getTType(),vv.getRouteName());
+            if (trasse.o1!=null){
+                log.addError(trasse.o1+vv.getTType()+":"+vv.getRouteName()+" "+vv.getStopName1()+" "+vv.getStopName2()+" ");
+                vv.setDataValid(false);
+                continue;
+                }
+            if (trasse.o2.size()==0){
                 log.addInfo("Нет данных: "+vv.getTType()+":"+vv.getRouteName()+" "+vv.getStopName1()+" "+vv.getStopName2()+" ");
                 vv.setDataValid(false);
+                continue;
                 }
-            else{
-                //----------- Разрезание по остановкам -----------------------------
-                TSegment cline = new TSegment();
-                TStop prevTStop = null;
-                double lastLnt = 0.0;
-                for(GorTransPoint a:trasse){
-                    cline.getPoints().add(new TSegPoint(new GPSPoint(a.getLat(),a.getLng(),true)));
-                    if (a.getN().length()!=0){       // остановка
-                        TStop stop = new TStop(a.getN(),new GPSPoint(a.getLat(),a.getLng(),true));
-                        boolean twoTStops=false;
-                        if (prevTStop!=null && stop.getName().equals(prevTStop.getName())){
-                            twoTStops = true;
-                            lastLnt = cline.size();
-                            log.addInfo("idx="+vv.getSegments().size()+" segment size="+cline.size()+" lnt="+lastLnt);
-                            if (vv.getLastStopIdx()==0)            // Первый
-                                vv.setLastStopIdx(vv.getStops().size() - 1);
-                                }
-                        if (!(twoTStops && lastLnt==0)){   // Между двумя одинаковыми нет проезда - не сохранять второй
-                            addOriginalTStop(log,vv, new TStop(stop));
-                            if (cline.size()!=1)          // Для самого первого  =1
-                                addOriginalSegment(log,vv, cline);
+            //----------- Разрезание по остановкам -----------------------------
+            TSegment cline = new TSegment();
+            TStop prevTStop = null;
+            double lastLnt = 0.0;
+            for(GorTransPoint a:trasse.o2){
+                cline.getPoints().add(new TSegPoint(new GPSPoint(a.getLat(),a.getLng(),true)));
+                if (a.getN().length()!=0){       // остановка
+                    TStop stop = new TStop(a.getN(),new GPSPoint(a.getLat(),a.getLng(),true));
+                    boolean twoTStops=false;
+                    if (prevTStop!=null && stop.getName().equals(prevTStop.getName())){
+                        twoTStops = true;
+                        lastLnt = cline.size();
+                        log.addInfo("idx="+vv.getSegments().size()+" segment size="+cline.size()+" lnt="+lastLnt);
+                        if (vv.getLastStopIdx()==0)            // Первый
+                            vv.setLastStopIdx(vv.getStops().size() - 1);
                             }
-                        cline = new TSegment();
-                        cline.getPoints().add(new TSegPoint(new GPSPoint(a.getLat(),a.getLng(),true)));
-                        prevTStop = stop;
+                    if (!(twoTStops && lastLnt==0)){   // Между двумя одинаковыми нет проезда - не сохранять второй
+                        addOriginalTStop(log,vv, new TStop(stop));
+                        if (cline.size()!=1)          // Для самого первого  =1
+                            addOriginalSegment(log,vv, cline);
                         }
+                    cline = new TSegment();
+                    cline.getPoints().add(new TSegPoint(new GPSPoint(a.getLat(),a.getLng(),true)));
+                    prevTStop = stop;
                     }
-                //pline.foreach((a)=> a.save(conn))
-                //-------- Для отладки ---------------------------------------------
-                //    }
-                //if (vv.route.firstTStopIdx==0){      // копировать последнюю остановку
-                //    val idx = vv.getStops().size-1
-                //    val lastTStop = vv.getStops().get(idx)
-                //    cline = new TSegment
-                //    cline.add(new Coord(lastTStop.stop))
-                //    cline.add(new Coord(lastTStop.stop))
-                //    vv.segments.add(new RouteSegment(cline))
-                //   }
-                int lst = vv.getStops().size() - 1;
-                if (vv.getSegments().size() !=  lst){
-                    log.addInfo("Не соответствует кол-во остановок и сегментов");
-                    vv.setDataValid(false);
-                    }
-                String s1 = vv.getStops().get(0).getName();
-                String s2 = vv.getStops().get(lst).getName();
-                String s3 = vv.getStops().get(lst-1).getName();
-                if (!s1.equals(s2)){
-                    log.addInfo("Не соовпадают остановки на концах маршрута: "+s1+" "+s2);
-                    vv.setDataValid(false);
-                    }
-                if (s3.equals(s2)){
-                    vv.setLastStopDiff2(true);              // Проезд на втором конце
-                    int lnt2 = vv.getSegments().get(vv.getSegments().size()-1).getSegment().getRef().getPoints().size();
-                    log.addInfo("Проезд на втором конце: "+lnt2);
-                    }
-                int idx = vv.getLastStopIdx();
-                String s4 = vv.getStops().get(idx).getName();
-                String s5 = vv.getStops().get(idx+1).getName();
-                if (s4.equals(s5)){
-                    vv.setLastStopDiff1(true);      // Проезд на первом конце
-                    int lnt2 = vv.getSegments().get(idx).getSegment().getRef().getPoints().size();
-                    log.addInfo("Проезд на первом конце: "+lnt2);
-                    }
-                log.addInfo(vv.getTType()+":"+vv.getRouteName()+" "+
-                    vv.getSegments().size()+" "+vv.getStops().size()+" "+s4+"["+idx+"] ");
-                log.addInfo(vv.getStopName1()+" "+vv.getStopName2()+" ");
                 }
+            //pline.foreach((a)=> a.save(conn))
+            //-------- Для отладки ---------------------------------------------
+            //    }
+            //if (vv.route.firstTStopIdx==0){      // копировать последнюю остановку
+            //    val idx = vv.getStops().size-1
+            //    val lastTStop = vv.getStops().get(idx)
+            //    cline = new TSegment
+            //    cline.add(new Coord(lastTStop.stop))
+            //    cline.add(new Coord(lastTStop.stop))
+            //    vv.segments.add(new RouteSegment(cline))
+            //   }
+            int lst = vv.getStops().size() - 1;
+            if (vv.getSegments().size() !=  lst){
+                log.addInfo("Не соответствует кол-во остановок и сегментов");
+                vv.setDataValid(false);
+                }
+            String s1 = vv.getStops().get(0).getName();
+            String s2 = vv.getStops().get(lst).getName();
+            String s3 = vv.getStops().get(lst-1).getName();
+            if (!s1.equals(s2)){
+                log.addInfo("Не соовпадают остановки на концах маршрута: "+s1+" "+s2);
+                vv.setDataValid(false);
+                }
+            if (s3.equals(s2)){
+                vv.setLastStopDiff2(true);              // Проезд на втором конце
+                int lnt2 = vv.getSegments().get(vv.getSegments().size()-1).getSegment().getRef().getPoints().size();
+                log.addInfo("Проезд на втором конце: "+lnt2);
+                }
+            int idx = vv.getLastStopIdx();
+            String s4 = vv.getStops().get(idx).getName();
+            String s5 = vv.getStops().get(idx+1).getName();
+            if (s4.equals(s5)){
+                vv.setLastStopDiff1(true);      // Проезд на первом конце
+                int lnt2 = vv.getSegments().get(idx).getSegment().getRef().getPoints().size();
+                log.addInfo("Проезд на первом конце: "+lnt2);
+                }
+            log.addInfo(vv.getTType()+":"+vv.getRouteName()+" "+
+                vv.getSegments().size()+" "+vv.getStops().size()+" "+s4+"["+idx+"] ");
+            log.addInfo(vv.getStopName1()+" "+vv.getStopName2()+" ");
             }
-            log.addInfo("Сегментов="+segments.size()+" повторов="+pairs+" ближайших="+nears);
+        log.addInfo("Сегментов="+segments.size()+" повторов="+pairs+" ближайших="+nears+" время="+(System.currentTimeMillis()-tt)/1000);
         } catch (Throwable e){ log.addError("Ошибка импорта: "+e.toString()); }
     }
+    //------------------------------------------------------------------------------------------------------
+    public static void main(String args[]) throws Throwable{
+        GorTransImport xx = new GorTransImport();
+        ErrorList errorList = new ErrorList();
+        xx.importData(errorList);
+        System.out.println(errorList);
+        errorList.clear();
+        xx.importData(false,-1,errorList);
+        System.out.println(errorList);
+        }
 }

@@ -5,6 +5,7 @@
 package romanow.abc.core.entity.nskgortrans;
 
 import lombok.Getter;
+import romanow.abc.core.utils.Pair;
 
 import java.util.ArrayList;
 
@@ -19,7 +20,12 @@ public class GorTransData {
     boolean init(){
         try {
             GorTransHttpClient xx=new GorTransHttpClient();
-            routes=xx.getRouteList();
+            Pair<String,ArrayList<GorTransRouteList>> list = xx.getRouteList();
+            if (list.o1!=null){
+                System.out.println(list.o1);
+                return false;
+                }
+            routes = list.o2;
             } catch(Throwable ee){
                 return false;
                 }
@@ -42,11 +48,13 @@ public class GorTransData {
         if (route==null) return out;
         try {
             GorTransHttpClient xx=new GorTransHttpClient();
-            out=xx.getCareList(routeType,route.getMarsh());
+            Pair<String,GorTransCareList> list=xx.getCareList(routeType,route.getMarsh());
+            if (list.o1!=null)
+                return out;
+            return list.o2;
             } catch(Throwable ee){
                 return out;
                 }
-        return out;
         }
     ArrayList<GorTransPoint> getTrasse(int routeType, String routeName){
         ArrayList<GorTransPoint> out=new ArrayList<>();
@@ -55,9 +63,11 @@ public class GorTransData {
         if (route==null) return out;
         try {
             GorTransHttpClient xx=new GorTransHttpClient();
-            out=xx.getTrasse(routeType,route.getMarsh());
+            Pair<String,ArrayList<GorTransPoint>> list=xx.getTrasse(routeType,route.getMarsh());
+            if (list.o1!=null)
+                return out;
+            return list.o2;
             } catch(Throwable ee){ routes=null; return out; }
-        return out;
         }
    public static void main(String argv[]){
        GorTransData xx=new GorTransData();
