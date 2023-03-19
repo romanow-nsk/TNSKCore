@@ -14,6 +14,7 @@ import java.util.ArrayList;
 import org.codehaus.jackson.JsonNode;
 import org.codehaus.jackson.map.ObjectMapper;
 import romanow.abc.core.constants.Values;
+import romanow.abc.core.entity.server.TCare;
 import romanow.abc.core.utils.Pair;
 
 /**
@@ -93,17 +94,35 @@ public class GorTransHttpClient {
                 }
             System.out.println(data.o2.get(type).getWays().get(idx));
             }
-        Pair<String,GorTransCareList> cares=xx.getCareList(type,data.o2.get(type).getWays().get(idx).getName());
-        if (cares.o1!=null)
-            System.out.println(cares.o1);
-        else
-            System.out.println(cares.o2);
-        Pair<String,ArrayList<GorTransPoint>> pnt=xx.getTrasse(type,data.o2.get(type).getWays().get(idx).getName());
+        String routeName = data.o2.get(type).getWays().get(idx).getName();
+        Pair<String,ArrayList<GorTransPoint>> pnt=xx.getTrasse(type,routeName);
         if (pnt.o1!=null)
             System.out.println(pnt.o1);
         else{
             for(GorTransPoint point : pnt.o2)
                 System.out.println(point);
             }
+        long tt = System.currentTimeMillis();
+        if (data.o1!=null)
+            return;
+        int cnt=0;
+        for(GorTransRouteList dd : data.o2){
+            type = dd.type;
+            for (GorTransRoute route : dd.getWays()){
+                routeName = route.getName();
+                Pair<String,GorTransCareList> cares=xx.getCareList(type,routeName);
+                if (cares.o1!=null)
+                    System.out.println(cares.o1);
+                else{
+                    //System.out.println(cares.o2);
+                    cnt+=cares.o2.getMarkers().size();
+                    for (GorTransCare care : cares.o2.getMarkers()){
+                        TCare tCare = new TCare(true,type,routeName,care);
+                        System.out.println(tCare);
+                        }
+                    }
+                }
+            }
+        System.out.println("Бортов на маршрутах: "+cnt+" опрос="+(System.currentTimeMillis()-tt)/1000+" сек");
         }
 }

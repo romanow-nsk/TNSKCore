@@ -26,6 +26,9 @@ public class TRoute extends Entity {
         stopName1 = src.getStopb();
         stopName2 = src.getStope();
         }
+    public String getRouteKey(){
+        return tType+"_"+routeNumber;
+        }
     public static void main(String ss[]){
         new TRoute();
         }

@@ -103,6 +103,7 @@ public class Values extends ValuesBase {
         EntityFactory.put(new TableItem("Маршрут", TRoute.class));
         EntityFactory.put(new TableItem("Сегмент маршрута", TRouteSegment.class));
         EntityFactory.put(new TableItem("Остановка маршрута", TRouteStop.class));
+        EntityFactory.put(new TableItem("Форматы SMS", TSMSBank.class));
         EntityFactory.put(new TableItem("Настройки", WorkSettings.class));
         HashMap<String,String> PrefixMap = getPrefixMap();
         PrefixMap.put("TSegPoint.gps","g");
