@@ -29,6 +29,9 @@ public class TRoute extends Entity {
     public String getRouteKey(){
         return tType+"_"+routeNumber;
         }
+    public String getName(){                // Для EntityRefList
+        return tType+"_"+routeNumber;
+        }
     public static void main(String ss[]){
         new TRoute();
         }

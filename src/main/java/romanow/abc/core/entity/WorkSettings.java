@@ -7,4 +7,5 @@ import romanow.abc.core.entity.base.WorkSettingsBase;
 
 public class WorkSettings extends WorkSettingsBase {
     @Getter @Setter private int careStoryHours=10;          // Интервал сохранения истории борта
+    @Getter @Setter private int careScanPeriod=30;          // Интервал сканирвания бортов (сек)
 }

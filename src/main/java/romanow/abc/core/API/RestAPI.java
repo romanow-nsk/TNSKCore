@@ -10,9 +10,15 @@ import romanow.abc.core.reports.TableData;
 
 public interface RestAPI {
     //==================================  API ПРЕДМЕТНОЙ ОБЛАСТИ =======================================================
-    /** Инициализировать БД сервера */
+    /** Импорт ДС из NskGorTrans */
     @GET("/api/tnsk/import")
     Call<ErrorList> gorTransImport(@Header("SessionToken") String token, @Query("pass") String pass);
+    /** Включение/выключение сканирования */
+    @POST("/api/tnsk/changescan")
+    Call<ErrorList> changeScanState(@Header("SessionToken") String token, @Query("pass") String pass);
+    /** Состояние сканирования */
+    @GET("/api/tnsk/getscan")
+    Call<JBoolean> getScanState(@Header("SessionToken") String token, @Query("pass") String pass);
     /** Добавить группу к экзамену (создание EMTicket для студентов) */
     //@POST("/api/rating/group/add")
     //Call<JLong> addGroupToDiscipline(@Header("SessionToken") String token, @Body() SAGroupRating rating);
