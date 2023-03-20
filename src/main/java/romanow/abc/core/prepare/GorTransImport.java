@@ -69,26 +69,47 @@ public class GorTransImport {
     private void addOriginalTStop(ErrorList log, TRoute vv, TStop stop){
         TStop stop2 = stops.vnear(stop,cmp1);
         if (stop2 == null){
-            TStop xx = new TStop(stop);
-            vv.getStops().add(new TRouteStop(xx));        // Добавить описатель остановки
-            stops.add(new TStop(stop));
+            vv.getStops().add(new TRouteStop(stop));        // Добавить описатель остановки
+            stops.add(stop);
             }
         else{
             double diff = stop2.getGps().diff(stop.getGps());
-            if (!stop.getName().equals(stop2.getName())){
-            TStop xx = new TStop(stop);
-            vv.getStops().add(new TRouteStop(xx));       // Добавить описатель остановки
-            stops.add(new TStop(stop));
-            }
-        else{
-            TStop xx = new TStop(stop2);
-            xx.setDiff(diff);
-            vv.getStops().add(new TRouteStop(xx));      // Добавить описатель остановки
-            if (diff!=0)                                // Расстояние до одноименной
-                log.addInfo("Расстояние до одноименной "+stop2.getName()+" "+diff);
+            if (!stop.getName().equals(stop2.getName())){   // Разные имена с ближайшей
+                vv.getStops().add(new TRouteStop(stop));    // Добавить описатель остановки
+                stops.add(stop);
+                }
+            else{
+                vv.getStops().add(new TRouteStop(stop2,diff));      // Добавить описатель остановки
+                if (diff!=0)                                        // Расстояние до одноименной
+                    log.addInfo("Расстояние до одноименной "+stop2.getName()+" "+diff);
                 }
             }
         }
+    /*
+    Stop stop2 = stops.vnear(stop,cmp1);
+        if (stop2 == null){
+        Stop xx = new Stop(stop);
+        vv.stops.add(xx);           // Добавить описатель остановки
+        stops.add(new Stop(stop));
+    }
+        else{
+        double diff = stop2.orm.diff(stop.orm);
+        if (!stop.orm.name.equals(stop2.orm.name)){
+            Stop xx = new Stop(stop);
+            vv.stops.add(xx);       // Добавить описатель остановки
+            stops.add(new Stop(stop));
+        }
+        else{
+            Stop xx = new Stop(stop2);
+            xx.diff = (int)diff;
+            vv.stops.add(xx);     // Добавить описатель остановки
+            if (diff!=0)        // Расстояние до одноименной
+                log.onMessage(stop2.orm.name+" "+diff);
+        }
+
+
+    }
+*/
     //----------------- Вложенная функция поиска оригинальной остановки
     private void addOriginalSegment(ErrorList log, TRoute vv, TSegment cline){       // Поиск сегмента по совпадению
         TSegment like = segments.firstLike(cline,like1);
@@ -217,7 +238,7 @@ public class GorTransImport {
                             vv.setLastStopIdx(vv.getStops().size() - 1);
                             }
                     if (!(twoTStops && lastLnt==0)){   // Между двумя одинаковыми нет проезда - не сохранять второй
-                        addOriginalTStop(log,vv, new TStop(stop));
+                        addOriginalTStop(log,vv, stop);
                         if (cline.size()!=1)          // Для самого первого  =1
                             addOriginalSegment(log,vv, cline);
                         }

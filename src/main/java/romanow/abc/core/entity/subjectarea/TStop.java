@@ -8,7 +8,6 @@ import romanow.abc.core.utils.GPSPoint;
 public class TStop extends Entity {
     @Getter @Setter private String name="";
     @Getter GPSPoint gps = new GPSPoint();
-    @Getter @Setter double diff=0;
     public TStop(){}
     public TStop(TStop two){
         setName(two.getName());

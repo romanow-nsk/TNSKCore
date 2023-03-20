@@ -13,5 +13,9 @@ public class TRouteStop extends Entity {
     public TRouteStop(TStop stop0){
         stop.setOidRef(stop0);
         }
+    public TRouteStop(TStop stop0,double diff0){
+        stop.setOidRef(stop0);
+        diff = diff0;
+        }
     public TRouteStop(){}
 }
