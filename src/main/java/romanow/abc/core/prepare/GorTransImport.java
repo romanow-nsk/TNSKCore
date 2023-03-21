@@ -1,13 +1,18 @@
 package romanow.abc.core.prepare;
 
 import lombok.Getter;
+import lombok.Setter;
 import romanow.abc.core.ErrorList;
+import romanow.abc.core.constants.ConstValue;
+import romanow.abc.core.constants.Values;
+import romanow.abc.core.constants.ValuesBase;
 import romanow.abc.core.entity.nskgortrans.*;
 import romanow.abc.core.entity.subjectarea.*;
 import romanow.abc.core.utils.GPSPoint;
 import romanow.abc.core.utils.Pair;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 
 /**
  *
@@ -19,6 +24,7 @@ public class GorTransImport {
     @Getter private TSegmentList segments = new TSegmentList();
     private int nears=0;
     private int pairs=0;
+    @Setter private int traceLevel = ValuesBase.TraceModeNone;
     //public void importData(DBProfile profile, ProxyParams proxy,ServerLog log) throws Throwable{
     //    importData(profile,proxy,true,-1,log);
     //    }
@@ -80,7 +86,7 @@ public class GorTransImport {
                 }
             else{
                 vv.getStops().add(new TRouteStop(stop2,diff));      // Добавить описатель остановки
-                if (diff!=0)                                        // Расстояние до одноименной
+                if (diff!=0 && traceLevel==ValuesBase.TraceModeMax) // Расстояние до одноименной
                     log.addInfo("Расстояние до одноименной "+stop2.getName()+" "+diff);
                 }
             }
@@ -141,12 +147,14 @@ public class GorTransImport {
             if (b1>1 || b2>1 || b3>1 || b4>1){
             nears++;
             if (b1>1){
-                log.addInfo("1. "+b1+"("+a1.size()+")="+cline.size());
+                if (traceLevel==ValuesBase.TraceModeMax)
+                    log.addInfo("1. "+b1+"("+a1.size()+")="+cline.size());
                 zz.getNear1().setRef(a1);
                 zz.setMode1(1);
                 }
             if (b2>1){
-                log.addInfo("2. "+b2+"("+a2.size()+")="+cline.size());
+                if (traceLevel==ValuesBase.TraceModeMax)
+                    log.addInfo("2. "+b2+"("+a2.size()+")="+cline.size());
                 if (zz.getNear1() == null){
                     zz.getNear1().setRef(a2);
                     zz.setMode1(2);
@@ -157,7 +165,8 @@ public class GorTransImport {
                 }
             }
             if (b3>1){
-                log.addInfo("3. "+b3+"("+a3.size()+")="+cline.size());
+                if (traceLevel==ValuesBase.TraceModeMax)
+                    log.addInfo("3. "+b3+"("+a3.size()+")="+cline.size());
                 if (zz.getNear1() == null){
                     zz.getNear1().setRef(a3);
                     zz.setMode1(3);
@@ -168,7 +177,8 @@ public class GorTransImport {
                     }
                 }
             if (b4>1){
-                log.addInfo("4. "+b4+"("+a4.size()+")="+cline.size());
+                if (traceLevel==ValuesBase.TraceModeMax)
+                    log.addInfo("4. "+b4+"("+a4.size()+")="+cline.size());
                 if (zz.getNear1() == null){
                     zz.getNear1().setRef(a4);
                     zz.setMode1(4);
@@ -187,6 +197,7 @@ public class GorTransImport {
         importData(true,-1,log);
         }
     public void  importData(boolean retrofit, int routeCount, ErrorList log){
+        HashMap<Integer, ConstValue> map = Values.constMap().getGroupMapByValue("RouteType");
         long tt = System.currentTimeMillis();
         GorTransHttpClient client1 = new GorTransHttpClient();
         GorTransAPIClient client2 = new GorTransAPIClient();
@@ -212,12 +223,13 @@ public class GorTransImport {
             Pair<String,ArrayList<GorTransPoint>> trasse = retrofit ? client1.getTrasse(vv.getTType(),vv.getRouteName()) :
                     client2.getTrasse(vv.getTType(),vv.getRouteName());
             if (trasse.o1!=null){
-                log.addError(trasse.o1+vv.getTType()+":"+vv.getRouteName()+" "+vv.getStopName1()+" "+vv.getStopName2()+" ");
+                log.addError(trasse.o1+vv.getTitle(map)+" "+vv.getStopName1()+" "+vv.getStopName2()+" ");
                 vv.setDataValid(false);
                 continue;
                 }
             if (trasse.o2.size()==0){
-                log.addInfo("Нет данных: "+vv.getTType()+":"+vv.getRouteName()+" "+vv.getStopName1()+" "+vv.getStopName2()+" ");
+                if (traceLevel!=ValuesBase.TraceModeNone)
+                    log.addInfo("Нет данных: "+vv.getTitle(map)+" "+vv.getStopName1()+" "+vv.getStopName2()+" ");
                 vv.setDataValid(false);
                 continue;
                 }
@@ -233,7 +245,8 @@ public class GorTransImport {
                     if (prevTStop!=null && stop.getName().equals(prevTStop.getName())){
                         twoTStops = true;
                         lastLnt = cline.size();
-                        log.addInfo("idx="+vv.getSegments().size()+" segment size="+cline.size()+" lnt="+lastLnt);
+                        if (traceLevel==ValuesBase.TraceModeMax)
+                            log.addInfo("idx="+vv.getSegments().size()+" segment size="+cline.size()+" lnt="+lastLnt);
                         if (vv.getLastStopIdx()==0)            // Первый
                             vv.setLastStopIdx(vv.getStops().size() - 1);
                             }
@@ -260,20 +273,23 @@ public class GorTransImport {
             //   }
             int lst = vv.getStops().size() - 1;
             if (vv.getSegments().size() !=  lst){
-                log.addInfo("Не соответствует кол-во остановок и сегментов");
+                if (traceLevel>=ValuesBase.TraceModeMin)
+                    log.addInfo(vv.getTitle(map)+": не соответствует кол-во остановок и сегментов");
                 vv.setDataValid(false);
                 }
             String s1 = vv.getStops().get(0).getName();
             String s2 = vv.getStops().get(lst).getName();
             String s3 = vv.getStops().get(lst-1).getName();
             if (!s1.equals(s2)){
-                log.addInfo("Не соовпадают остановки на концах маршрута: "+s1+" "+s2);
+                if (traceLevel>=ValuesBase.TraceModeMin)
+                    log.addInfo(vv.getTitle(map)+": не соовпадают остановки на концах маршрута: "+s1+" "+s2);
                 vv.setDataValid(false);
                 }
             if (s3.equals(s2)){
                 vv.setLastStopDiff2(true);              // Проезд на втором конце
                 int lnt2 = vv.getSegments().get(vv.getSegments().size()-1).getSegment().getRef().getPoints().size();
-                log.addInfo("Проезд на втором конце: "+lnt2);
+                if (traceLevel==ValuesBase.TraceModeMax)
+                    log.addInfo("Проезд на втором конце: "+lnt2);
                 }
             int idx = vv.getLastStopIdx();
             String s4 = vv.getStops().get(idx).getName();
@@ -281,11 +297,13 @@ public class GorTransImport {
             if (s4.equals(s5)){
                 vv.setLastStopDiff1(true);      // Проезд на первом конце
                 int lnt2 = vv.getSegments().get(idx).getSegment().getRef().getPoints().size();
-                log.addInfo("Проезд на первом конце: "+lnt2);
+                if (traceLevel==ValuesBase.TraceModeMax)
+                    log.addInfo("Проезд на первом конце: "+lnt2);
                 }
-            log.addInfo(vv.getTType()+":"+vv.getRouteName()+" "+
-                vv.getSegments().size()+" "+vv.getStops().size()+" "+s4+"["+idx+"] ");
-            log.addInfo(vv.getStopName1()+" "+vv.getStopName2()+" ");
+            if (traceLevel==ValuesBase.TraceModeMax){
+                log.addInfo(vv.getTitle(map)+" "+ vv.getSegments().size()+" "+vv.getStops().size()+" "+s4+"["+idx+"] ");
+                log.addInfo(vv.getStopName1()+" "+vv.getStopName2()+" ");
+                }
             }
         log.addInfo("Сегментов="+segments.size()+" повторов="+pairs+" ближайших="+nears+" время="+(System.currentTimeMillis()-tt)/1000);
         } catch (Throwable e){ log.addError("Ошибка импорта: "+e.toString()); }

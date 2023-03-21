@@ -97,7 +97,7 @@ public class Values extends ValuesBase {
     protected void initTables(){
         super.initTables();
         EntityIndexedFactory EntityFactory = getEntityFactory();
-        EntityFactory.put(new TableItem("Точка сегмента", TSegPoint.class));
+        EntityFactory.put(new TableItem("Точка сегмента", TSegPoint.class).add("TSegment"));
         EntityFactory.put(new TableItem("Cегмент", TSegment.class));
         EntityFactory.put(new TableItem("Остановка", TStop.class));
         EntityFactory.put(new TableItem("Маршрут", TRoute.class));
@@ -128,6 +128,15 @@ public class Values extends ValuesBase {
     public final static int RepStudent = 2;
     @CONST(group = "Report", title = "Рейтинг уч.единицы")
     public final static int RepEduUnit = 3;
+    //----------------------- Отчеты  ---------------------------------------------
+    @CONST(group = "RouteType", title = "Авт.")
+    public final static int RouteBus = 0;
+    @CONST(group = "RouteType", title = "Тролл.")
+    public final static int RouteTrolleyBus = 1;
+    @CONST(group = "RouteType", title = "Трам.")
+    public final static int RouteTram = 2;
+    @CONST(group = "RouteType", title = "Марш.")
+    public final static int RouteMinibus = 7;
     //-------------------------------------------------------------------------------------------
     public static void main(String a[]){
         Values.init();
