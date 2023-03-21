@@ -40,6 +40,12 @@ public class TRoute extends Entity {
     public String getTitle(HashMap<Integer, ConstValue> map){
         return map.get(tType).title()+" "+routeNumber;
         }
+    public EntityRefList<TSegment> createSegmentList(){     // Прямые ссылки на сегменты маршрута
+        EntityRefList<TSegment> out = new EntityRefList<>();
+        for(TRouteSegment routeSegment : segments)
+            out.add(routeSegment.getSegment().getRef());
+        return out;
+        }
     public String getName(){                // Для EntityRefList
         return tType+"_"+routeNumber;
         }

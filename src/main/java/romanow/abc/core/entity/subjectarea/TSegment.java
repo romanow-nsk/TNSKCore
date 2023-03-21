@@ -76,9 +76,17 @@ public class TSegment extends Entity {
         for(int ii=0;ii<minsz;ii++){
             if (!points.get(size()-1-ii).cmpExact(two.points.get(ii)))
                 return ii;
-        }
+            }
         return 0;
-    }
+        }
+    public double calcSegmentLength(){      // Сумма длин отрезков сегмента
+        if (points.size()<=1)
+            return 0;
+        double lnt=0;
+        for(int i=1;i<points.size();i++)
+            lnt += points.get(i).getGps().diff(points.get(i-1).getGps());
+        return lnt;
+        }
     //--------------------------------------------------------------------------
 
 }
