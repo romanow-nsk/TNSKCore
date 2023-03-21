@@ -2,10 +2,12 @@ package romanow.abc.core.API;
 
 import romanow.abc.core.DBRequest;
 import romanow.abc.core.ErrorList;
+import romanow.abc.core.entity.EntityRefList;
 import romanow.abc.core.entity.artifacts.Artifact;
 import romanow.abc.core.entity.baseentityes.*;
 import retrofit2.Call;
 import retrofit2.http.*;
+import romanow.abc.core.entity.subjectarea.TSegment;
 import romanow.abc.core.reports.TableData;
 
 public interface RestAPI {
@@ -19,6 +21,9 @@ public interface RestAPI {
     /** Состояние сканирования */
     @GET("/api/tnsk/getscan")
     Call<JBoolean> getScanState(@Header("SessionToken") String token, @Query("pass") String pass);
+    /** Состояние сканирования */
+    @GET("/api/tnsk/roads")
+    Call<EntityRefList<TSegment>> getRoads(@Header("SessionToken") String token);
     /** Добавить группу к экзамену (создание EMTicket для студентов) */
     //@POST("/api/rating/group/add")
     //Call<JLong> addGroupToDiscipline(@Header("SessionToken") String token, @Body() SAGroupRating rating);
