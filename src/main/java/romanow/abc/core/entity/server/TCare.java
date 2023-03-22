@@ -1,10 +1,12 @@
 package romanow.abc.core.entity.server;
 
 import lombok.Getter;
+import lombok.Setter;
 import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormat;
 import romanow.abc.core.entity.Entity;
 import romanow.abc.core.entity.nskgortrans.GorTransCare;
+import romanow.abc.core.prepare.Distantion;
 import romanow.abc.core.utils.GPSPoint;
 import romanow.abc.core.utils.OwnDateTime;
 
@@ -21,6 +23,7 @@ public class TCare extends Entity {
     @Getter private ArrayList<String> rasp;
     @Getter private String ramp="";
     @Getter private double speed;
+    @Getter @Setter private Distantion routePoint=null;
     public String getRouteKey(){
         return tType+"_"+routeNumber;
         }

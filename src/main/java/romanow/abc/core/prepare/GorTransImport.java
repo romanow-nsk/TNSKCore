@@ -132,6 +132,7 @@ public class GorTransImport {
             vv.getSegments().add(zz);
             }
         else{
+            cline.calcSegmentLength();
             segments.add(cline);
             //------------- Частично совпадающие сегменты !!!!!!!!!
             TSegment a1 = segments.vfar(cline,cmp2);

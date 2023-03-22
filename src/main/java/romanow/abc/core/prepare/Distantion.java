@@ -1,16 +1,31 @@
 package romanow.abc.core.prepare;
 
+import lombok.Getter;
+import lombok.Setter;
+import romanow.abc.core.entity.subjectarea.TSegment;
 import romanow.abc.core.utils.GPSPoint;
 
 public class Distantion {
-    public final boolean done;
-    public final double distToLine;
-    public final double distToPoint1;
-    public final double distToPount2;
-    public String toString(){
+    public final boolean done;          // Перпендикуляр есть
+    public final double distToLine;     // Длина перпендикуляра (расстояние до отрезка)
+    public final double distToPoint1;   // От основания перпендикуляра до первой точки
+    public final double distToPount2;   // От основания перпендикуляра до второй точки
+    @Getter @Setter private TSegment segment;
+    @Getter @Setter private int segIdx=-1;  // Индекс сегмента в маршруте
+    @Getter @Setter private double totalLength=0;
+    public Distantion(){
+        done=false;
+        distToLine=0;
+        distToPoint1=0;
+        distToPount2=0;
+        }
+    public String toFullString(){
         return ""+done+" h="+distToLine+" to1="+distToPoint1+" to2="+distToPount2;
         }
-        /*  Точка перпендикуляра на отрезок
+    public String toString(){
+        return "сегмент="+segIdx+" откл.="+(int)distToLine+" путь="+String.format("%6.3f",totalLength/1000);
+        }
+    /*  Точка перпендикуляра на отрезок
     double L=(x1-x2)*(x1-x2)+(y1-y2)*(y1-y2);
     double PR=(x-x1)*(x2-x1)+(y-y1)*(y2-y1);
     bool res=true;

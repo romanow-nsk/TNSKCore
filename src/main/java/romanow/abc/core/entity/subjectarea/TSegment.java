@@ -3,9 +3,12 @@ package romanow.abc.core.entity.subjectarea;
 import lombok.Getter;
 import romanow.abc.core.entity.Entity;
 import romanow.abc.core.entity.EntityRefList;
+import romanow.abc.core.prepare.Distantion;
+import romanow.abc.core.utils.GPSPoint;
 
 public class TSegment extends Entity {
     @Getter private EntityRefList<TSegPoint> points = new EntityRefList<>(TSegPoint.class);     // Точки сегмента
+    @Getter private double totalLength=0;
     public int size() { return points.size(); }
     public TSegment(){}
     //----------- Манипуляции - сравнения и разрезания -------------------------
@@ -79,14 +82,28 @@ public class TSegment extends Entity {
             }
         return 0;
         }
-    public double calcSegmentLength(){      // Сумма длин отрезков сегмента
+    public void calcSegmentLength(){      // Сумма длин отрезков сегмента
+        totalLength=0;
         if (points.size()<=1)
-            return 0;
-        double lnt=0;
+            return;
         for(int i=1;i<points.size();i++)
-            lnt += points.get(i).getGps().diff(points.get(i-1).getGps());
-        return lnt;
+            totalLength += points.get(i).getGps().diff(points.get(i-1).getGps());
         }
-    //--------------------------------------------------------------------------
+    //---------------------------------- Поиск ближайшего отрезка ------------------------------------------------------
+    public Distantion findRoutePoint(GPSPoint point){
+        Distantion nearest = new Distantion();
+        if (points.size()<=1)
+            return nearest;
+        for(int i=1;i<points.size();i++){
+            Distantion two = new Distantion(point,points.get(i-1).getGps(),points.get(i).getGps());
+            if (!nearest.done)
+                nearest = two;
+            else{
+                if (two.done && two.distToLine < nearest.distToLine)
+                    nearest = two;
+                }
+            }
+        return nearest;
+        }
 
 }
