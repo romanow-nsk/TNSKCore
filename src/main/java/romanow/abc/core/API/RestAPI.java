@@ -7,8 +7,10 @@ import romanow.abc.core.entity.artifacts.Artifact;
 import romanow.abc.core.entity.baseentityes.*;
 import retrofit2.Call;
 import retrofit2.http.*;
+import romanow.abc.core.entity.server.TCare;
 import romanow.abc.core.entity.subjectarea.TSegment;
 import romanow.abc.core.reports.TableData;
+import romanow.abc.core.utils.GPSPoint;
 
 public interface RestAPI {
     //==================================  API ПРЕДМЕТНОЙ ОБЛАСТИ =======================================================
@@ -24,6 +26,12 @@ public interface RestAPI {
     /** Состояние сканирования */
     @GET("/api/tnsk/roads")
     Call<EntityRefList<TSegment>> getRoads(@Header("SessionToken") String token);
+    /** Состояние сканирования */
+    @POST("/api/tnsk/cares/nearest")
+    Call<EntityRefList<TCare>> getNearestCares(@Header("SessionToken") String token, @Query("distance") int dist, @Body GPSPoint point);
+    /** Состояние сканирования */
+    @GET("/api/tnsk/cares/actual")
+    Call<EntityRefList<TCare>> getActualCares(@Header("SessionToken") String token,@Query("route") String route);
     /** Добавить группу к экзамену (создание EMTicket для студентов) */
     //@POST("/api/rating/group/add")
     //Call<JLong> addGroupToDiscipline(@Header("SessionToken") String token, @Body() SAGroupRating rating);

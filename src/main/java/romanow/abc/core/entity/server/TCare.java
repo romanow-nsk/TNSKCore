@@ -4,6 +4,7 @@ import lombok.Getter;
 import lombok.Setter;
 import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormat;
+import romanow.abc.core.constants.ConstValue;
 import romanow.abc.core.entity.Entity;
 import romanow.abc.core.entity.nskgortrans.GorTransCare;
 import romanow.abc.core.prepare.Distantion;
@@ -11,6 +12,7 @@ import romanow.abc.core.utils.GPSPoint;
 import romanow.abc.core.utils.OwnDateTime;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 
 public class TCare extends Entity {
     @Getter private int tType=0;                // Тип транспорта
@@ -26,6 +28,9 @@ public class TCare extends Entity {
     @Getter @Setter private Distantion routePoint=null;
     public String getRouteKey(){
         return tType+"_"+routeNumber;
+        }
+    public String getTitle(HashMap<Integer, ConstValue> typeMap){
+        return typeMap.get(tType).title()+" "+routeNumber+", борт "+careRouteId;
         }
     public int getCareKey(){
         return careRouteId;
@@ -58,4 +63,7 @@ public class TCare extends Entity {
     public String toString(){
         return "тип="+tType+" маршрут="+routeNumber+" скор="+speed+" место="+gps.toString()+" время="+careTime.toString()+" расписание:\n"+rasp.toString();
         }
+    public String toString(HashMap<Integer, ConstValue> typeMap){
+        return getTitle(typeMap)+" скор="+speed+" место="+gps.toString()+" время="+careTime.toString();
+    }
 }

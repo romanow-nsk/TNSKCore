@@ -24,73 +24,179 @@ public class GorTransImport {
     @Getter private TSegmentList segments = new TSegmentList();
     private int nears=0;
     private int pairs=0;
+    private int cntMode[]=new int[6];
+    private HashMap<Integer,ConstValue> nearMap;
+    HashMap<Integer, ConstValue> map;
     @Setter private int traceLevel = ValuesBase.TraceModeNone;
     //public void importData(DBProfile profile, ProxyParams proxy,ServerLog log) throws Throwable{
     //    importData(profile,proxy,true,-1,log);
     //    }
     //------------- "Анонимные функции" --------------------------------------
-    FunCmp<TStop> cmp1 = new FunCmp<TStop>(){
+    FunCmp<TStop> cmp1 = new FunCmp<TStop>(){               // Совпадение точек
         @Override
         public int cmp(TStop v1, TStop v2) {
             return v1.getGps().diff(v2.getGps());
             }
         };
-    FunLike<TSegment> like1 = new FunLike<TSegment>(){
+    FunLike<TSegment> like1 = new FunLike<TSegment>(){      // Прямое совпадение сегментов
         @Override
         public boolean like(TSegment v1, TSegment v2){
             return v1.cmpExactFore(v2);
             }
         };
-    FunLike<TSegment> like2 = new FunLike<TSegment>(){
+    FunLike<TSegment> like2 = new FunLike<TSegment>(){      // Обратное совпадение сегментов
         @Override
         public boolean like(TSegment v1, TSegment v2){
             return v1.cmpExactBack(v2);
             }
         };
-    FunCmp<TSegment> cmp2 = new FunCmp<TSegment>(){
+    FunCmp<TSegment> cmp2 = new FunCmp<TSegment>(){         // Прямое совпадение по длине мин.сегмента от начала
         @Override
         public int cmp(TSegment v1, TSegment v2) {
             return v1.cmpNearFore1(v2);
             }
         };
-    FunCmp<TSegment> cmp3 = new FunCmp<TSegment>(){
+    FunCmp<TSegment> cmp3 = new FunCmp<TSegment>(){         // Прямое совпадение по длине мин.сегмента  от конца
         @Override
         public int cmp(TSegment v1, TSegment v2) {
             return v1.cmpNearFore2(v2);
             }
         };
-    FunCmp<TSegment> cmp4 = new FunCmp<TSegment>(){
+    FunCmp<TSegment> cmp4 = new FunCmp<TSegment>(){         // Инверсное совпадение по длине мин.сегмента  от начала
         @Override
         public int cmp(TSegment v1, TSegment v2) {
             return v1.cmpNearBack1(v2);
             }
         };
-    FunCmp<TSegment> cmp5 = new FunCmp<TSegment>(){
+    FunCmp<TSegment> cmp5 = new FunCmp<TSegment>(){         // Инверсное совпадение по длине мин.сегмента  от конца
         @Override
         public int cmp(TSegment v1, TSegment v2) {
             return v1.cmpNearBack2(v2);
             }
         };
+    //----------------- Вложенная функция поиска оригинального сегмента
+    private void addOriginalSegment(ErrorList log, TRoute vv, TSegment cline){       // cline - новый сегмент
+        TSegment like = segments.firstLike(cline,like1);
+        if (like != null){                              // Прямое совпадение сегментов
+            pairs++;
+            TRouteSegment zz = new TRouteSegment(like);
+            zz.setMode1(Values.OMRightFull);
+            cntMode[zz.getMode1()]++;
+            vv.getSegments().add(zz);
+            }
+        else{
+            like = segments.firstLike(cline,like2);     // Обратное совпадение сегментов
+            if (like != null){
+            pairs++;
+            TRouteSegment zz = new TRouteSegment(like);
+            zz.setMode1(Values.OMInvertFull);
+            cntMode[zz.getMode1()]++;
+            vv.getSegments().add(zz);
+            }
+        else{
+            cline.calcSegmentLength();
+            segments.add(cline);                        // Сегмент создается уникальный при частичном совпадении
+            //------------- Частично совпадающие сегменты !!!!!!!!!
+            TSegment a1 = segments.vfar(cline,cmp2);    // Макс. прямое совпадение по длине мин.сегмента от начала
+            TSegment a2 = segments.vfar(cline,cmp3);    // Макс. прямое совпадение по длине мин.сегмента  от конца
+            TSegment a3 = segments.vfar(cline,cmp4);    // Макс. инверсное совпадение по длине мин.сегмента  от начала
+            TSegment a4 = segments.vfar(cline,cmp5);    // Макс. инверсное совпадение по длине мин.сегмента  от конца
+            int b1 = cline.cmpNearFore1(a1);            // Точек совпадения для a1
+            int b2 = cline.cmpNearFore2(a2);            // Точек совпадения для a2
+            int b3 = cline.cmpNearBack1(a3);            // Точек совпадения для a3
+            int b4 = cline.cmpNearBack2(a4);            // Точек совпадения для a4
+            TRouteSegment zz = new TRouteSegment(cline);
+            vv.getSegments().add(zz);
+            if (b1>1 || b2>1 || b3>1 || b4>1){
+            nears++;
+            if (b1>1){
+                if (traceLevel==ValuesBase.TraceModeMid)
+                    log.addInfo(vv.getTitle(map)+" "+nearMap.get(Values.OMRightPartBeg).title()+" общих "+b1+" из"+a1.size()+","+cline.size());
+                if (zz.getNear1() == null){
+                    zz.getNear1().setRef(a1);
+                    zz.setMode1(Values.OMRightPartBeg);
+                    cntMode[zz.getMode1()]++;
+                    zz.setPoints1(b1);
+                    }
+                else{
+                    zz.getNear2().setRef(a2);
+                    zz.setMode2(Values.OMRightPartBeg);
+                    cntMode[zz.getMode2()]++;
+                    zz.setPoints2(b1);
+                    }
+                }
+            if (b2>1){
+                if (traceLevel==ValuesBase.TraceModeMid)
+                    log.addInfo(vv.getTitle(map)+" "+nearMap.get(Values.OMRightPartEnd).title()+" общих "+b2+" из"+a2.size()+","+cline.size());
+                if (zz.getNear1() == null){
+                    zz.getNear1().setRef(a2);
+                    zz.setMode1(Values.OMRightPartEnd);
+                    cntMode[zz.getMode1()]++;
+                    zz.setPoints1(b2);
+                    }
+                else{
+                    zz.getNear2().setRef(a2);
+                    zz.setMode2(Values.OMRightPartEnd);
+                    cntMode[zz.getMode2()]++;
+                    zz.setPoints2(b2);
+                    }
+                }
+            if (b3>1){
+                if (traceLevel==ValuesBase.TraceModeMid)
+                    log.addInfo(vv.getTitle(map)+" "+nearMap.get(Values.OMInvertPartBeg).title()+" общих "+b3+" из"+a3.size()+","+cline.size());
+                if (zz.getNear1() == null){
+                    zz.getNear1().setRef(a3);
+                    zz.setMode1(Values.OMInvertPartBeg);
+                    cntMode[zz.getMode1()]++;
+                    zz.setPoints1(b3);
+                    }
+                else{
+                    zz.getNear2().setRef(a3);
+                    zz.setMode1(Values.OMInvertPartBeg);
+                    cntMode[zz.getMode1()]++;
+                    zz.setPoints2(b3);
+                    }
+                }
+            if (b4>1){
+                if (traceLevel==ValuesBase.TraceModeMid)
+                    log.addInfo(vv.getTitle(map)+" "+nearMap.get(Values.OMInvertPartEnd).title()+" общих "+b4+" из"+a4.size()+","+cline.size());
+                if (zz.getNear1() == null){
+                    zz.getNear1().setRef(a4);
+                    zz.setMode1(Values.OMInvertPartEnd);
+                    cntMode[zz.getMode1()]++;
+                    zz.setPoints1(b4);
+                    }
+                else{
+                    zz.getNear2().setRef(a4);
+                    zz.setMode1(Values.OMInvertPartEnd);
+                    cntMode[zz.getMode1()]++;
+                    zz.setPoints1(b4);
+                    }
+                    }
+                }
+            }
+        }
+    }
     //----------------- Вложенная функция поиска оригинальной остановки
     private void addOriginalTStop(ErrorList log, TRoute vv, TStop stop){
         TStop stop2 = stops.vnear(stop,cmp1);
         if (stop2 == null){
             vv.getStops().add(new TRouteStop(stop));        // Добавить описатель остановки
             stops.add(stop);
-            }
+        }
         else{
             double diff = stop2.getGps().diff(stop.getGps());
             if (!stop.getName().equals(stop2.getName())){   // Разные имена с ближайшей
                 vv.getStops().add(new TRouteStop(stop));    // Добавить описатель остановки
                 stops.add(stop);
-                }
+            }
             else{
                 vv.getStops().add(new TRouteStop(stop2,diff));      // Добавить описатель остановки
                 if (diff!=0 && traceLevel==ValuesBase.TraceModeMax) // Расстояние до одноименной
                     log.addInfo("Расстояние до одноименной "+stop2.getName()+" "+diff);
-                }
             }
         }
+    }
     /*
     Stop stop2 = stops.vnear(stop,cmp1);
         if (stop2 == null){
@@ -115,90 +221,16 @@ public class GorTransImport {
 
 
     }
-*/
-    //----------------- Вложенная функция поиска оригинальной остановки
-    private void addOriginalSegment(ErrorList log, TRoute vv, TSegment cline){       // Поиск сегмента по совпадению
-        TSegment like = segments.firstLike(cline,like1);
-        if (like != null){
-            pairs++;
-            TRouteSegment zz = new TRouteSegment(like);
-            vv.getSegments().add(zz);
-            }
-        else{
-            like = segments.firstLike(cline,like2);
-            if (like != null){
-            pairs++;
-            TRouteSegment zz = new TRouteSegment(like);
-            vv.getSegments().add(zz);
-            }
-        else{
-            cline.calcSegmentLength();
-            segments.add(cline);
-            //------------- Частично совпадающие сегменты !!!!!!!!!
-            TSegment a1 = segments.vfar(cline,cmp2);
-            TSegment a2 = segments.vfar(cline,cmp3);
-            TSegment a3 = segments.vfar(cline,cmp4);
-            TSegment a4 = segments.vfar(cline,cmp5);
-            int b1 = cline.cmpNearFore1(a1);
-            int b2 = cline.cmpNearFore2(a2);
-            int b3 = cline.cmpNearBack1(a3);
-            int b4 = cline.cmpNearBack2(a4);
-            TRouteSegment zz = new TRouteSegment(cline);
-            vv.getSegments().add(zz);
-            if (b1>1 || b2>1 || b3>1 || b4>1){
-            nears++;
-            if (b1>1){
-                if (traceLevel==ValuesBase.TraceModeMax)
-                    log.addInfo("1. "+b1+"("+a1.size()+")="+cline.size());
-                zz.getNear1().setRef(a1);
-                zz.setMode1(1);
-                }
-            if (b2>1){
-                if (traceLevel==ValuesBase.TraceModeMax)
-                    log.addInfo("2. "+b2+"("+a2.size()+")="+cline.size());
-                if (zz.getNear1() == null){
-                    zz.getNear1().setRef(a2);
-                    zz.setMode1(2);
-                    }
-            else{
-                zz.getNear2().setRef(a2);
-                zz.setMode2(2);
-                }
-            }
-            if (b3>1){
-                if (traceLevel==ValuesBase.TraceModeMax)
-                    log.addInfo("3. "+b3+"("+a3.size()+")="+cline.size());
-                if (zz.getNear1() == null){
-                    zz.getNear1().setRef(a3);
-                    zz.setMode1(3);
-                    }
-                else{
-                    zz.getNear2().setRef(a3);
-                    zz.setMode2(3);
-                    }
-                }
-            if (b4>1){
-                if (traceLevel==ValuesBase.TraceModeMax)
-                    log.addInfo("4. "+b4+"("+a4.size()+")="+cline.size());
-                if (zz.getNear1() == null){
-                    zz.getNear1().setRef(a4);
-                    zz.setMode1(4);
-                    }
-                else{
-                    zz.getNear2().setRef(a4);
-                    zz.setMode2(4);
-                    }
-                }
-            }
-        }
-        }
-    }
+    */
     //--------------------------------------------------------------------------------
     public void  importData(ErrorList log){
         importData(true,-1,log);
         }
     public void  importData(boolean retrofit, int routeCount, ErrorList log){
-        HashMap<Integer, ConstValue> map = Values.constMap().getGroupMapByValue("RouteType");
+        map = Values.constMap().getGroupMapByValue("RouteType");
+        nearMap = Values.constMap().getGroupMapByValue("OverlapMode");
+        for(int i=0;i<cntMode.length;i++)
+            cntMode[i]=0;
         long tt = System.currentTimeMillis();
         GorTransHttpClient client1 = new GorTransHttpClient();
         GorTransAPIClient client2 = new GorTransAPIClient();
@@ -306,6 +338,8 @@ public class GorTransImport {
                 log.addInfo(vv.getStopName1()+" "+vv.getStopName2()+" ");
                 }
             }
+        for(int i=0;i<cntMode.length;i++)
+            log.addInfo(""+(i+1)+". "+nearMap.get(i).title()+" "+cntMode[i]);
         log.addInfo("Сегментов="+segments.size()+" повторов="+pairs+" ближайших="+nears+" время="+(System.currentTimeMillis()-tt)/1000);
         } catch (Throwable e){ log.addError("Ошибка импорта: "+e.toString()); }
     }

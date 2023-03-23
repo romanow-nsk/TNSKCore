@@ -128,7 +128,7 @@ public class Values extends ValuesBase {
     public final static int RepStudent = 2;
     @CONST(group = "Report", title = "Рейтинг уч.единицы")
     public final static int RepEduUnit = 3;
-    //----------------------- Отчеты  ---------------------------------------------
+    //----------------------- Типы ТС  ---------------------------------------------
     @CONST(group = "RouteType", title = "Авт.")
     public final static int RouteBus = 0;
     @CONST(group = "RouteType", title = "Тролл.")
@@ -137,6 +137,19 @@ public class Values extends ValuesBase {
     public final static int RouteTram = 2;
     @CONST(group = "RouteType", title = "Марш.")
     public final static int RouteMinibus = 7;
+    //----------------------- Вариант перекрытия сегментов -------------------------
+    @CONST(group = "OverlapMode", title = "Прямое полное")
+    public final static int OMRightFull = 0;
+    @CONST(group = "OverlapMode", title = "Обратное полное")
+    public final static int OMInvertFull = 1;
+    @CONST(group = "OverlapMode", title = "Прямое частично от начала")
+    public final static int OMRightPartBeg = 2;
+    @CONST(group = "OverlapMode", title = "Прямое частично от конца")
+    public final static int OMRightPartEnd = 3;
+    @CONST(group = "OverlapMode", title = "Обратное частично от начала")
+    public final static int OMInvertPartBeg = 4;
+    @CONST(group = "OverlapMode", title = "Обратное частично от конца")
+    public final static int OMInvertPartEnd = 5;
     //-------------------------------------------------------------------------------------------
     public static void main(String a[]){
         Values.init();

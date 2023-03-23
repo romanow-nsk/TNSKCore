@@ -26,6 +26,7 @@ public class TRoute extends Entity {
     @Getter @Setter private boolean lastStopDiff1=false; // пара конечных в середине (расстояние !=0 )
     @Getter @Setter private boolean lastStopDiff2=false; // пара конечных в конце (расстояние !=0 )
     @Getter @Setter private int lastStopIdx=0;           // Индекс пары конечных в маршруте (первый из пары)
+    @Getter transient EntityRefList<TCare> actualCares= new EntityRefList<>();
     public TRoute(){}
     public TRoute(int type,GorTransRoute src){
         tType = type;
@@ -52,6 +53,9 @@ public class TRoute extends Entity {
         }
     public String getName(){                // Для EntityRefList
         return tType+"_"+routeNumber;
+        }
+    public synchronized void setActualCares(EntityRefList<TCare> actualCares0){
+        actualCares = actualCares0;
         }
     //--------------------------------------- Привязка к сегменту маршрута без учета направления (вся СД в памяти)
     public void createRoutePoint(TCare care, ErrorList errors, HashMap<Integer, ConstValue> map){

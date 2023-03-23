@@ -12,7 +12,7 @@ public class TSegment extends Entity {
     public int size() { return points.size(); }
     public TSegment(){}
     //----------- Манипуляции - сравнения и разрезания -------------------------
-    public boolean cmpExactFore(TSegment two){
+    public boolean cmpExactFore(TSegment two){      // Полное прямое совпадение
         if (size() != two.size())
             return false;
         for(int ii=0; ii<size();ii++){
@@ -21,7 +21,7 @@ public class TSegment extends Entity {
             }
         return true;
         }
-    public boolean cmpExactBack(TSegment two){
+    public boolean cmpExactBack(TSegment two){      // Полное инверсное совпадение
         if (size() != two.size())
             return false;
         for(int ii=0; ii< points.size();ii++){
@@ -30,52 +30,40 @@ public class TSegment extends Entity {
             }
         return true;
         }
-    public int cmpNearFore1(TSegment two){
+    public int cmpNearFore1(TSegment two){          // Прямое совпадение по длине минимального от начала
         int minsz = size();
         if (two.size() < size())
             minsz = two.size();
-        int maxsz = size();
-        if (two.size() > size())
-            maxsz = two.size();
         for(int ii=0;ii<minsz;ii++){
             if (!points.get(ii).cmpExact(two.points.get(ii)))
                 return ii;
             }
         return 0;
         }
-    public int  cmpNearFore2(TSegment two){
+    public int  cmpNearFore2(TSegment two){         // Прямое совпадение по длине минимального от конца
         int minsz = size();
         if (two.size() < size())
             minsz = two.size();
-        int maxsz = size();
-        if (two.size() > size())
-            maxsz = two.size();
         for(int ii=0;ii<minsz;ii++){
             if (!points.get(size()-1-ii).cmpExact(two.points.get(two.size()-1-ii)))
                 return ii;
         }
         return 0;
     }
-    public int cmpNearBack1(TSegment two){
+    public int cmpNearBack1(TSegment two){         // Инверсное совпадение по длине минимального от начала
         int minsz = size();
         if (two.size() < size())
             minsz = two.size();
-        int maxsz = size();
-        if (two.size() > size())
-            maxsz = two.size();
         for(int ii=0;ii<minsz;ii++){
             if (!points.get(ii).cmpExact(two.points.get(two.size()-1-ii)))
                 return ii;
             }
         return 0;
         }
-    public int  cmpNearBack2(TSegment two){
+    public int  cmpNearBack2(TSegment two){         // Инверсное совпадение по длине минимального от конца
         int minsz = size();
         if (two.size() < size())
             minsz = two.size();
-        int maxsz = size();
-        if (two.size() > size())
-            maxsz = two.size();
         for(int ii=0;ii<minsz;ii++){
             if (!points.get(size()-1-ii).cmpExact(two.points.get(ii)))
                 return ii;
