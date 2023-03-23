@@ -64,6 +64,6 @@ public class TCare extends Entity {
         return "тип="+tType+" маршрут="+routeNumber+" скор="+speed+" место="+gps.toString()+" время="+careTime.toString()+" расписание:\n"+rasp.toString();
         }
     public String toString(HashMap<Integer, ConstValue> typeMap){
-        return getTitle(typeMap)+" скор="+speed+" место="+gps.toString()+" время="+careTime.toString();
+        return getTitle(typeMap)+" скор="+speed+" "+routePoint.toString();
     }
 }
