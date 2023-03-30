@@ -45,8 +45,14 @@ public class Distantion {
         double v2 = p1.diffY(p2);
         double L=v1*v1+v2*v2;
         double PR = point.diffX(p1)*p2.diffX(p1)+point.diffY(p1)*p2.diffY(p1);
+        done =  PR>=0 && PR<=L && L!=0;
+        if (done){
+            distToLine=0;
+            distToPoint1=0;
+            distToPount2=0;
+            return;
+            }
         double cf = PR/L;
-        done =  PR>=0 && PR<=L;
         distToLine = Math.abs(point.diffX(p1)*p2.diffY(p1)-point.diffY(p1)*p2.diffX(p1))/Math.sqrt(L);
         v1 = cf*p2.diffX(p1);
         v2 = cf*p2.diffY(p1);
