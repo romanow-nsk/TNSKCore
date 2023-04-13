@@ -19,13 +19,13 @@ public class TCare extends Entity {
     @Getter private String routeNumber="";      // Номер маршрута (напр. 13в)
     @Getter private int careRouteId=0;          // График - номер на маршруте
     @Getter private ArrayList<String> rasp = new ArrayList<>();     //
-    public String getRouteKey(){
+    public String getCareKey(){
         return tType+"_"+routeNumber+"_"+careRouteId;
         }
     public String getTitle(HashMap<Integer, ConstValue> typeMap){
         return typeMap.get(tType).title()+" "+routeNumber+", борт "+careRouteId;
         }
-    public int getCareKey(){
+    public int getCareId(){
         return careRouteId;
         }
     public boolean noCareData(){ return careStory.size()==0; }

@@ -8,7 +8,7 @@ import romanow.abc.core.utils.OwnDateTime;
 import java.util.ArrayList;
 
 public class TPassenger {
-    @Getter @Setter User user;
+    @Getter @Setter User user = new User();
     @Getter private ArrayList<TPassengerPoint> passengerStory = new ArrayList<>();
     public TPassenger(){}
     public TPassenger(User user0){
