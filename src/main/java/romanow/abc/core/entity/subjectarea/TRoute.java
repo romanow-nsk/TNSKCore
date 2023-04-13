@@ -84,7 +84,7 @@ public class TRoute extends Entity {
             for(int i=0;i<nearest.getSegIdx();i++)
                 totalLength += segments.get(i).getSegment().getRef().getTotalLength();
             nearest.setTotalLength(totalLength+nearest.distToPoint1);
-            errors.addInfo("Борт "+care.getCareRouteId()+" маршрута "+getTitle(map)+" скор.="+care.lastPoint().getSpeed()+" "+nearest);
+            //errors.addInfo("Борт "+care.getCareRouteId()+" маршрута "+getTitle(map)+" скор.="+care.lastPoint().getSpeed()+" "+nearest);
             }
         else{
             errors.addError("Борт "+care.getCareRouteId()+" маршрута "+getTitle(map)+" не привязан к трассе");

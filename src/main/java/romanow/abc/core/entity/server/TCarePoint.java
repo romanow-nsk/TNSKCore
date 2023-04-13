@@ -9,8 +9,6 @@ import romanow.abc.core.prepare.Distantion;
 import romanow.abc.core.utils.GPSPoint;
 import romanow.abc.core.utils.OwnDateTime;
 
-import java.util.ArrayList;
-
 public class TCarePoint {
     @Getter
     private GPSPoint gps;               // Здесь же = серверное время

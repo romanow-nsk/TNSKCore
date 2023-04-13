@@ -11,8 +11,8 @@ public class Distantion {
     public final double distToPoint1;   // От основания перпендикуляра до первой точки
     public final double distToPount2;   // От основания перпендикуляра до второй точки
     @Getter @Setter private TSegment segment;
+    @Getter @Setter double totalLength=0;   // Определяется при привязке к сегменту маршрута - от начала маршрута
     @Getter @Setter private int segIdx=-1;  // Индекс сегмента в маршруте
-    @Getter @Setter private double totalLength=0;
     public Distantion(){
         done=false;
         distToLine=0;
@@ -23,7 +23,7 @@ public class Distantion {
         return ""+done+" h="+distToLine+" to1="+distToPoint1+" to2="+distToPount2;
         }
     public String toString(){
-        return !done ? "Вне маршрута: " : "Cег.="+segIdx+" откл.="+(int)distToLine+" путь="+String.format("%6.3f",totalLength/1000);
+        return !done ? "Вне маршрута: " : "Cег.="+segIdx+" откл.="+(int)distToLine+" путь="+String.format("%6.3f[%6.3f]",distToPoint1/1000,totalLength/1000);
         }
     /*  Точка перпендикуляра на отрезок
     double L=(x1-x2)*(x1-x2)+(y1-y2)*(y1-y2);
@@ -46,7 +46,7 @@ public class Distantion {
         double L=v1*v1+v2*v2;
         double PR = point.diffX(p1)*p2.diffX(p1)+point.diffY(p1)*p2.diffY(p1);
         done =  PR>=0 && PR<=L && L!=0;
-        if (done){
+        if (!done){
             distToLine=0;
             distToPoint1=0;
             distToPount2=0;
@@ -61,8 +61,12 @@ public class Distantion {
         }
     public static void main(String ss[]){
         GPSPoint p1=new GPSPoint(54,85,true);
-        GPSPoint p2=new GPSPoint(54.01,85.01,true);
-        GPSPoint p=new GPSPoint(54.0001,85.0001,true);
-        System.out.println(new Distantion(p,p1,p2));
+        GPSPoint p2=new GPSPoint(54.0,85.1,true);
+        GPSPoint p=new GPSPoint(54.0,85.05,true);
+        System.out.println(new Distantion(p,p1,p2).toString());     // Горизонтальный
+        GPSPoint p21=new GPSPoint(54,85,true);
+        GPSPoint p22=new GPSPoint(54.1,85.1,true);
+        GPSPoint p20=new GPSPoint(54.05,85.05,true);
+        System.out.println(new Distantion(p20,p21,p22).toString());     // Диагональный
         }
 }

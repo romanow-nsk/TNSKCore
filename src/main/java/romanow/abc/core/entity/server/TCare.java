@@ -1,9 +1,7 @@
 package romanow.abc.core.entity.server;
 
 import lombok.Getter;
-import lombok.Setter;
-import org.joda.time.DateTime;
-import org.joda.time.format.DateTimeFormat;
+
 import romanow.abc.core.constants.ConstValue;
 import romanow.abc.core.entity.Entity;
 import romanow.abc.core.entity.nskgortrans.GorTransCare;
@@ -85,9 +83,20 @@ public class TCare extends Entity {
                 return;
             }
         }
-    public void addCarePoint(int hour, TCarePoint point){
-        careStory.add(point);
+    public int addCarePoint(int hour, TCarePoint point){
+        if (careStory.size()==0){
+            careStory.add(point);
+            return 0;
+            }
+        else{
+            TCarePoint last = careStory.get(careStory.size()-1);
+            if (point.getCareTime().timeInMS()==last.getCareTime().timeInMS()){
+                return 1;
+                }
+            careStory.add(point);
+            }
         squeezy(hour);
+        return 0;
         }
     public void setDistantion(Distantion distantion){
         lastPoint().setRoutePoint(distantion);
