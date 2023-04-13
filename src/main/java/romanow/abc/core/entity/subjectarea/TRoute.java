@@ -58,15 +58,15 @@ public class TRoute extends Entity {
         actualCares = actualCares0;
         }
     //--------------------------------------- Привязка к сегменту маршрута без учета направления (вся СД в памяти)
-    public void createRoutePoint(TCare care, ErrorList errors, HashMap<Integer, ConstValue> map){
+    public Distantion createRoutePoint(TCare care, ErrorList errors, HashMap<Integer, ConstValue> map){
         Distantion nearest = new Distantion();
         if (!care.getGps().gpsValid()){
             errors.addError("Нет gps борта "+care.getCareRouteId()+" маршрута "+getTitle(map));
-            care.setRoutePoint(nearest);
+            care.setDistantion(nearest);
             }
         if (segments.size()<=1){
             errors.addError("Нет трассы маршрута "+getTitle(map));
-            care.setRoutePoint(nearest);
+            care.setDistantion(nearest);
             }
         for(int i=0;i<segments.size();i++){
             TSegment segment = segments.get(i).getSegment().getRef();
@@ -84,12 +84,12 @@ public class TRoute extends Entity {
             for(int i=0;i<nearest.getSegIdx();i++)
                 totalLength += segments.get(i).getSegment().getRef().getTotalLength();
             nearest.setTotalLength(totalLength+nearest.distToPoint1);
-            errors.addInfo("Борт "+care.getCareRouteId()+" маршрута "+getTitle(map)+" скор.="+care.getSpeed()+" "+nearest);
+            errors.addInfo("Борт "+care.getCareRouteId()+" маршрута "+getTitle(map)+" скор.="+care.lastPoint().getSpeed()+" "+nearest);
             }
         else{
             errors.addError("Борт "+care.getCareRouteId()+" маршрута "+getTitle(map)+" не привязан к трассе");
             }
-        care.setRoutePoint(nearest);
+        return nearest;
         }
     //------------------------------------------------------------------------------------------------------------------
     public static void main(String ss[]){

@@ -1,0 +1,9 @@
+<component name="ArtifactManager">
+  <artifact type="jar" name="TNSKCore:jar">
+    <output-path>$PROJECT_DIR$/../TNSKAndroid/app/libs</output-path>
+    <root id="archive" name="TNSKCore.jar">
+      <element id="module-output" name="TNSKCore" />
+      <element id="module-output" name="ABCCore" />
+    </root>
+  </artifact>
+</component>

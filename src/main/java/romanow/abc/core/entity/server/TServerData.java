@@ -29,9 +29,9 @@ public class TServerData {
         if (!point.gpsValid())
             return cares;
         for(TCare care : actualCares){
-            if (!care.getGps().gpsValid())
+            if (!care.lastPoint().getGps().gpsValid())
                 continue;
-            if (care.getGps().diff(point)<diff)
+            if (care.lastPoint().getGps().diff(point)<diff)
                 cares.add(care);
             }
         return cares;

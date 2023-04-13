@@ -32,6 +32,8 @@ public interface RestAPI {
     /** Состояние сканирования */
     @GET("/api/tnsk/cares/actual")
     Call<EntityRefList<TCare>> getActualCares(@Header("SessionToken") String token,@Query("route") String route);
+    @GET("/api/tnsk/care/story")
+    Call<TCare> getCareStory(@Header("SessionToken") String token,@Query("carekey") String careKey);
     /** Добавить группу к экзамену (создание EMTicket для студентов) */
     //@POST("/api/rating/group/add")
     //Call<JLong> addGroupToDiscipline(@Header("SessionToken") String token, @Body() SAGroupRating rating);

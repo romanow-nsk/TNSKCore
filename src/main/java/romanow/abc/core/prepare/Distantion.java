@@ -23,7 +23,7 @@ public class Distantion {
         return ""+done+" h="+distToLine+" to1="+distToPoint1+" to2="+distToPount2;
         }
     public String toString(){
-        return !done ? "Вне маршрута: " : "Cегмент="+segIdx+" откл.="+(int)distToLine+" путь="+String.format("%6.3f",totalLength/1000);
+        return !done ? "Вне маршрута: " : "Cег.="+segIdx+" откл.="+(int)distToLine+" путь="+String.format("%6.3f",totalLength/1000);
         }
     /*  Точка перпендикуляра на отрезок
     double L=(x1-x2)*(x1-x2)+(y1-y2)*(y1-y2);
