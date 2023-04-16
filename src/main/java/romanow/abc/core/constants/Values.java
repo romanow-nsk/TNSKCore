@@ -39,7 +39,7 @@ public class Values extends ValuesBase {
             "romanow.abc.dataserver.TNskDataServer",
             "romanow.abc.dataserver.TNskConsoleServer",
             "romanow.abc.desktop.Cabinet",
-            "romanow.abc.desktop.Client",
+            "romanow.abc.desktop.TNSKClient",
             "","",""};
     private  final static String EMAppNames[]={
             "tnsk",
