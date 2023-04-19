@@ -1,5 +1,6 @@
 package romanow.abc.core.entity.server;
 
+import com.sun.scenario.effect.impl.prism.ps.PPSBlend_ADDPeer;
 import lombok.Getter;
 
 import lombok.Setter;
@@ -106,12 +107,17 @@ public class TCare extends Entity {
         return 0;
         }
     public void setDistantion(Distantion distantion){
-        lastPoint().setRoutePoint(distantion);
+        lastPoint().setDistantion(distantion);
         }
     public GPSPoint getGps(){
         return lastPoint().getGps();
         }
     //-------------------------- Поиск в истории маршрута для точки пассажира ---------------------------
+    // 1. Каждую точку пассажира привязываем к маршруту - distantion
+    // 2. Находим две точки борта на маршруте с ближайшим временем меньше и больше - before, after
+    // 3. TotalLength - расстояние от начала маршрута
+    // 4. Строим пропорцию расстояний и времен, определяем расстояние борта от начала на момент времени пассажира (way)
+    // 5. Определяем разницу расстояний way и точки пассажира
     public ErrorList searchInRoute(TPassengerPoint point, int MaxDistance, double maxDiff){
         point.setState(Values.PPStateOffBoard);
         ErrorList errors = new ErrorList();
@@ -136,7 +142,7 @@ public class TCare extends Entity {
         int idx;
         TCarePoint before=null,after=null,carePoint;
         for(idx=careStory.size()-1;idx>=0;idx--){              // Справа налево, пока время больше
-            if (!careStory.get(idx).getRoutePoint().done || careStory.get(idx).getGps().geoTime().timeInMS() >= point.getGps().geoTime().timeInMS())
+            if (!careStory.get(idx).getDistantion().done || careStory.get(idx).getGps().geoTime().timeInMS() >= point.getGps().geoTime().timeInMS())
                 continue;
             before = careStory.get(idx);
             break;
@@ -146,7 +152,7 @@ public class TCare extends Entity {
             return errors;
             }
         for(idx=0;idx<careStory.size();idx++){              // Слева направо, пока время меньше
-            if (!careStory.get(idx).getRoutePoint().done || careStory.get(idx).getGps().geoTime().timeInMS() <= point.getGps().geoTime().timeInMS())
+            if (!careStory.get(idx).getDistantion().done || careStory.get(idx).getGps().geoTime().timeInMS() <= point.getGps().geoTime().timeInMS())
                 continue;
             after = careStory.get(idx);
             break;
@@ -157,8 +163,9 @@ public class TCare extends Entity {
             return errors;
             }
         //----------------- Движение в обратном направлении по маршруту
-        double wayBefore = before.getRoutePoint().getTotalLength();
-        double wayAfter = after.getRoutePoint().getTotalLength();
+        double wayBefore = before.getDistantion().getTotalLength();
+        double wayAfter = after.getDistantion().getTotalLength();
+        double wayPoint = distantion.getTotalLength();
         long tBefore = before.getGps().geoTime().timeInMS();
         long tAfter = after.getGps().geoTime().timeInMS();
         long tt = point.getGps().geoTime().timeInMS();
@@ -167,7 +174,8 @@ public class TCare extends Entity {
             double vv = wayAfter; wayAfter=wayBefore; wayBefore=vv;
             }
         double way = wayBefore + (wayAfter-wayAfter)*(tt-tBefore)/(tAfter-tBefore);     // Из пропорции
-        if (way>maxDiff){
+        double df = Math.abs(way - wayPoint);
+        if (df>maxDiff){
             point.setState(Values.PPStateOver);
             errors.addError("Расстояние до борта "+(int)way);
             return errors;
@@ -177,4 +185,45 @@ public class TCare extends Entity {
         errors.addInfo("до маршрута "+(int)distantion.distToLine+" до борта "+(int)way);
         return errors;
         }
-}
+    //-------------------------- Поиск в истории маршрута для точки пассажира ---------------------------
+    // 1. Для каждой точки борта на маршруте ищем ближайшую по времени точку пассажира (точки пассажира - 10 сек, частые)
+    // 2. Привязываем к маршруту, определяем разницу путем и времен, корректируем путь
+    // 3. Отмечаем найденные точки по критерию расстояния, времени (привязана, не привязана)
+    // 4. Между привязанными точками выполняется вторичная привязка
+    public ErrorList searchInRoute2(TPassenger passenger, int routeDistance, double carePassDistance) {
+        ErrorList errors = new ErrorList();
+        if (careStory.size()==0){
+            errors.addError("Нет истории борта");
+            return errors;
+            }
+        if (passenger.getPassengerStory().size()==0){
+            errors.addError("Нет истории пассажира");
+            return errors;
+            }
+        for (TPassengerPoint point : passenger.getPassengerStory()){
+            point.setState(Values.PPStateNone);
+            }
+        ArrayList<Integer> idxList = new ArrayList<>();
+        for (TCarePoint carePoint : careStory){
+            boolean careOnRoute = !carePoint.getDistantion().done && carePoint.getDistantion().distToLine < routeDistance;
+            carePoint.setOnRoute(careOnRoute);
+            if (!careOnRoute)                                                           // Борт не привязан -  не искать пассажира
+                continue;
+            int idx = passenger.nearestPointIdx(carePoint.getCareTime());               // Ближайшая точка пассажира
+            idxList.add(idx);                                                           // Запомнить индексы
+            TPassengerPoint point = passenger.getPassengerStory().get(idx);
+            Distantion distantion = route.createRoutePoint(point.getGps());             // Привязка к маршруту
+            point.setDistantion(distantion);                                            // Данные привязки
+            boolean passOnRoute = !point.getDistantion().done && point.getDistantion().distToLine < routeDistance;
+            double gpsDiff = carePoint.getGps().diff(point.getGps());
+            double routeDiff = carePoint.getDistantion().getTotalLength()-point.getDistantion().getTotalLength();
+            double timeDiff = (carePoint.getGps().geoTime().timeInMS()-point.getGps().geoTime().timeInMS())/1000.;      // Разница в секундах
+            double speed = carePoint.getSpeed()/3.6;                                    // в м/сек
+            routeDiff -= speed * timeDiff;                                              // Коррекция по разнице времени и скорости
+            passOnRoute = passOnRoute && Math.abs(routeDiff) < carePassDistance;
+            point.setState(passOnRoute ? Values.PPStateOnBoard : Values.PPStateOffBoard);
+            }
+        return  errors;
+        }
+    }
+

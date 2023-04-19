@@ -38,4 +38,17 @@ public class TPassenger {
         passengerStory.add(point);
         squeezy(hour);
         }
+    public int nearestPointIdx(OwnDateTime time){
+        if (passengerStory.size()==0)
+            return -1;
+        int k=0;
+        long tt= time.timeInMS();
+        double diff = Math.abs(tt-passengerStory.get(0).getGps().geoTime().timeInMS());
+        for(int i=1;i<passengerStory.size();i++){
+            double diff2 = Math.abs(tt-passengerStory.get(i).getGps().geoTime().timeInMS());
+            if (diff2 < diff)
+                k=i;
+            }
+        return k;
+        }
 }

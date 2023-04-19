@@ -16,7 +16,8 @@ public class TCarePoint {
     @Getter private double azimuth=0;
     @Getter private String ramp="";
     @Getter private double speed=0;
-    @Getter @Setter private Distantion routePoint=new Distantion();
+    @Getter @Setter private boolean onRoute=false;       // Признак для алгоритмов привязки
+    @Getter @Setter private Distantion distantion =new Distantion();
     public TCarePoint(){}
     public TCarePoint(GorTransCare src){
         gps = new GPSPoint(src.getLat(),src.getLng(),true);
@@ -31,6 +32,6 @@ public class TCarePoint {
         return gps.geoTime();
         }
     public String toString(){
-        return ""+speed+" км/ч "+gps.toTimeString()+" "+gps.geoTime().timeFullToString()+" "+routePoint.toString();
+        return ""+speed+" км/ч "+gps.toTimeString()+" "+gps.geoTime().timeFullToString()+" "+ distantion.toString();
         }
     }
