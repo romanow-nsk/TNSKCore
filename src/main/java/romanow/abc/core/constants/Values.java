@@ -153,6 +153,19 @@ public class Values extends ValuesBase {
     public final static int OMInvertPartBeg = 4;
     @CONST(group = "OverlapMode", title = "Обратное частично от конца")
     public final static int OMInvertPartEnd = 5;
+    //----------------------- Состояние точки пассажира -------------------------
+    @CONST(group = "PPState", title = "Не определен")
+    public final static int PPStateNone = 0;
+    @CONST(group = "PPState", title = "Не привязан к борту")
+    public final static int PPStateOffBoard = 1;
+    @CONST(group = "PPState", title = "Превышены критерии")
+    public final static int PPStateOver = 2;
+    @CONST(group = "PPState", title = "Привязан к борту")
+    public final static int PPStateOnBoard = 3;
+    @CONST(group = "PPState", title = "Ожидание доп.данных")
+    public final static int PPStateContinue = 4;
+    @CONST(group = "PPState", title = "Не движется")
+    public final static int PPStateNotMoving = 5;
     //-------------------------------------------------------------------------------------------
     public static void main(String a[]){
         Values.init();

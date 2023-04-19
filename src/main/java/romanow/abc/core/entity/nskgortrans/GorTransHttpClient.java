@@ -117,7 +117,7 @@ public class GorTransHttpClient {
                     //System.out.println(cares.o2);
                     cnt+=cares.o2.getMarkers().size();
                     for (GorTransCare care : cares.o2.getMarkers()){
-                        TCare tCare = new TCare(true,type,routeName,care);
+                        TCare tCare = new TCare(true,type,routeName,care,null);
                         System.out.println(tCare);
                         }
                     }

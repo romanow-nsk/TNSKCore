@@ -11,9 +11,8 @@ import romanow.abc.core.utils.OwnDateTime;
 
 public class TCarePoint {
     @Getter
-    private GPSPoint gps;               // Здесь же = серверное время
+    private GPSPoint gps;                   // Здесь же = серверное время полцчения GPS
     @Getter private String direction;
-    @Getter private OwnDateTime careTime;
     @Getter private double azimuth;
     @Getter private String ramp="";
     @Getter private double speed;
@@ -26,9 +25,12 @@ public class TCarePoint {
         azimuth = src.getAzimuth();
         ramp = src.getRamp();
         DateTime dateTime = DateTimeFormat.forPattern("dd.MM.yy HH:mm:ss").parseDateTime(src.getTime_nav());
-        careTime = new OwnDateTime(dateTime.getMillis());
+        gps.setGpsTime(dateTime.getMillis());
+        }
+    public OwnDateTime getCareTime(){
+        return gps.geoTime();
         }
     public String toString(){
-        return ""+speed+" км/ч "+gps.toTimeString()+" "+careTime.timeFullToString()+" "+routePoint.toString();
+        return ""+speed+" км/ч "+gps.toTimeString()+" "+gps.geoTime().timeFullToString()+" "+routePoint.toString();
         }
     }

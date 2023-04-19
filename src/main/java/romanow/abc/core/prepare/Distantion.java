@@ -10,7 +10,6 @@ public class Distantion {
     public final double distToLine;     // Длина перпендикуляра (расстояние до отрезка)
     public final double distToPoint1;   // От основания перпендикуляра до первой точки
     public final double distToPount2;   // От основания перпендикуляра до второй точки
-    @Getter @Setter private TSegment segment;
     @Getter @Setter double totalLength=0;   // Определяется при привязке к сегменту маршрута - от начала маршрута
     @Getter @Setter private int segIdx=-1;  // Индекс сегмента в маршруте
     public Distantion(){

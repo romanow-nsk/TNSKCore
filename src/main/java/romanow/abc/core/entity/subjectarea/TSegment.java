@@ -96,7 +96,6 @@ public class TSegment extends WeekCellList {        // Включая стати
             return nearest;
         for(int i=1;i<points.size();i++){
             Distantion two = new Distantion(point,points.get(i-1).getGps(),points.get(i).getGps());
-            two.setSegment(this);
             if (!nearest.done)
                 nearest = two;
             else{
