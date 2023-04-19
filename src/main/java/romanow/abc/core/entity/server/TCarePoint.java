@@ -11,11 +11,11 @@ import romanow.abc.core.utils.OwnDateTime;
 
 public class TCarePoint {
     @Getter
-    private GPSPoint gps;                   // Здесь же = серверное время полцчения GPS
-    @Getter private String direction;
-    @Getter private double azimuth;
+    private GPSPoint gps=new GPSPoint();                  // Здесь же = серверное время полцчения GPS
+    @Getter private String direction="";
+    @Getter private double azimuth=0;
     @Getter private String ramp="";
-    @Getter private double speed;
+    @Getter private double speed=0;
     @Getter @Setter private Distantion routePoint=new Distantion();
     public TCarePoint(){}
     public TCarePoint(GorTransCare src){

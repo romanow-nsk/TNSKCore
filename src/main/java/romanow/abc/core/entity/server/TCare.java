@@ -21,7 +21,7 @@ public class TCare extends Entity {
     @Getter private String routeNumber="";                              // Номер маршрута (напр. 13в)
     @Getter private int careRouteId=0;                                  // График - номер на маршруте
     @Getter private ArrayList<String> rasp = new ArrayList<>();         //
-    @Getter private ArrayList<TCarePoint> careStory = new ArrayList<>();// История
+    @Getter private ArrayList<TCarePoint> careStory = new ArrayList<>();// История (здесь одна последняя точка)
     @Getter @Setter private TRoute route=null;
     //------------------------------------------------------------------------------
     public String getCareKey(){

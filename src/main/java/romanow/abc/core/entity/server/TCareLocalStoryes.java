@@ -4,13 +4,13 @@ import java.util.HashMap;
 
 public class TCareLocalStoryes extends HashMap<String, TCare>{
     public int put(int hours,TCare care){
-        TCare routeStory = get(care.getCareKey());
-        if (routeStory==null){
+        TCare careStory = get(care.getCareKey());
+        if (careStory==null){
             put(care.getCareKey(),care);
             return 0;
             }
         else{
-            return routeStory.addCarePoint(hours,care.lastPoint());
+            return careStory.addCarePoint(hours,care.lastPoint());
             }
         }
     }
