@@ -5,6 +5,7 @@ import romanow.abc.core.entity.*;
 import romanow.abc.core.entity.base.WorkSettingsBase;
 import romanow.abc.core.entity.subjectarea.*;
 import romanow.abc.core.entity.users.User;
+import romanow.abc.core.prepare.WeekCellList;
 
 import java.util.HashMap;
 
@@ -30,6 +31,8 @@ public class Values extends ValuesBase {
     private final static int EMReleaseNumber=1;                  // номер сборки сервера
     private User superUser = new User(UserSuperAdminType, "Система", "", "", "TNskDataserver", "pi31415926","9130000000");
     public final static String NskGorTransURL="maps.nskgortrans.ru";
+    public final static int FirstStatisticHour=6;
+    public final static int LastStatisticHour=24;
     //-----------------------------------------------------------------------------
     public final static int PopupMessageDelay=6;                // Тайм-аут всплывающего окна
     public final static int PopupLongDelay=20;                  // Тайм-аут всплывающего окна
@@ -98,7 +101,7 @@ public class Values extends ValuesBase {
         super.initTables();
         EntityIndexedFactory EntityFactory = getEntityFactory();
         EntityFactory.put(new TableItem("Точка сегмента", TSegPoint.class).add("TSegment"));
-        EntityFactory.put(new TableItem("Cегмент", TSegment.class));
+        EntityFactory.put(new TableItem("Сегмент", TSegment.class));
         EntityFactory.put(new TableItem("Остановка", TStop.class));
         EntityFactory.put(new TableItem("Маршрут", TRoute.class));
         EntityFactory.put(new TableItem("Сегмент маршрута", TRouteSegment.class));

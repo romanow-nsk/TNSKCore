@@ -57,20 +57,34 @@ public class TRoute extends Entity {
     public synchronized void setActualCares(EntityRefList<TCare> actualCares0){
         actualCares = actualCares0;
         }
-    //--------------------------------------- Привязка к сегменту маршрута без учета направления (вся СД в памяти)
+    //--------------------------------------- Привязка борта к сегменту маршрута без учета направления (вся СД в памяти)
     public Distantion createRoutePoint(TCare care, ErrorList errors, HashMap<Integer, ConstValue> map){
-        Distantion nearest = new Distantion();
+        Distantion nearest;
         if (!care.getGps().gpsValid()){
             errors.addError("Нет gps борта "+care.getCareRouteId()+" маршрута "+getTitle(map));
-            care.setDistantion(nearest);
+            nearest = new Distantion();
             }
-        if (segments.size()<=1){
-            errors.addError("Нет трассы маршрута "+getTitle(map));
-            care.setDistantion(nearest);
+        else{
+            if (segments.size()<=1){
+                nearest = new Distantion();
+                errors.addError("Нет трассы маршрута "+getTitle(map));
+                }
+            else
+                nearest = createRoutePoint(care.getGps());
             }
+        care.setDistantion(nearest);
+        if (!nearest.done)
+            errors.addError("Борт "+care.getCareRouteId()+" маршрута "+getTitle(map)+" не привязан к трассе");
+        return nearest;
+        }
+    //--------------------------------------- Привязка точки к сегменту маршрута без учета направления (вся СД в памяти)
+    public Distantion createRoutePoint(GPSPoint gps){
+        Distantion nearest = new Distantion();
+        if (segments.size()<=1)
+            return nearest;
         for(int i=0;i<segments.size();i++){
             TSegment segment = segments.get(i).getSegment().getRef();
-            Distantion two = segment.findRoutePoint(care.getGps());
+            Distantion two = segment.findRoutePoint(gps);
             two.setSegIdx(i);
             if (!nearest.done)
                 nearest = two;
@@ -85,9 +99,6 @@ public class TRoute extends Entity {
                 totalLength += segments.get(i).getSegment().getRef().getTotalLength();
             nearest.setTotalLength(totalLength+nearest.distToPoint1);
             //errors.addInfo("Борт "+care.getCareRouteId()+" маршрута "+getTitle(map)+" скор.="+care.lastPoint().getSpeed()+" "+nearest);
-            }
-        else{
-            errors.addError("Борт "+care.getCareRouteId()+" маршрута "+getTitle(map)+" не привязан к трассе");
             }
         return nearest;
         }

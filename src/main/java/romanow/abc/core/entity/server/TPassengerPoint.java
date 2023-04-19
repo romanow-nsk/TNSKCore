@@ -14,7 +14,7 @@ public class TPassengerPoint {
     @Getter private OwnDateTime saveTime;
     @Getter private Float azimuth=null;
     @Getter private Float speed=null;
-    @Getter private TCare care=null;
+    @Getter @Setter private TCare care=null;
     public TPassengerPoint(){}
     public boolean hasSpeed(){return speed!=null; }
     public boolean hasAzimuth(){return azimuth!=null; }

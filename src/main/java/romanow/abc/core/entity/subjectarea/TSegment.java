@@ -2,15 +2,27 @@ package romanow.abc.core.entity.subjectarea;
 
 import lombok.Getter;
 import romanow.abc.core.entity.Entity;
+import romanow.abc.core.entity.EntityLink;
 import romanow.abc.core.entity.EntityRefList;
+import romanow.abc.core.entity.server.TCare;
+import romanow.abc.core.entity.server.TSegmentStatistic;
 import romanow.abc.core.prepare.Distantion;
+import romanow.abc.core.prepare.WeekCellList;
 import romanow.abc.core.utils.GPSPoint;
+import romanow.abc.core.utils.OwnDateTime;
 
-public class TSegment extends Entity {
+public class TSegment extends WeekCellList {        // Включая статистику
     @Getter private EntityRefList<TSegPoint> points = new EntityRefList<>(TSegPoint.class);     // Точки сегмента
     @Getter private double totalLength=0;
     public int size() { return points.size(); }
     public TSegment(){}
+    //-------------------------------------------------------------------------
+    public String getTitle(){
+        return "Сегмент id="+getOid()+" точек "+points.size()+" длина "+String.format("%6.3f",totalLength);
+        }
+    public TSegmentStatistic getStatistic(){
+        return new TSegmentStatistic(getWeekCells(),getNotNullCells(),getTotalCounts());
+        }
     //----------- Манипуляции - сравнения и разрезания -------------------------
     public boolean cmpExactFore(TSegment two){      // Полное прямое совпадение
         if (size() != two.size())
@@ -84,6 +96,7 @@ public class TSegment extends Entity {
             return nearest;
         for(int i=1;i<points.size();i++){
             Distantion two = new Distantion(point,points.get(i-1).getGps(),points.get(i).getGps());
+            two.setSegment(this);
             if (!nearest.done)
                 nearest = two;
             else{
@@ -93,5 +106,8 @@ public class TSegment extends Entity {
             }
         return nearest;
         }
-
+    public void addSpeedStatistic(TCare care){
+        OwnDateTime ctime = new OwnDateTime();
+        getCell(ctime.dayOfWeek(),ctime.hour()).addNotNull(care.lastPoint().getSpeed());
+        }
 }

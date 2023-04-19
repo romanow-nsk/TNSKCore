@@ -16,7 +16,9 @@ public class TCare extends Entity {
     @Getter private int tType=0;                // Тип транспорта
     @Getter private String routeNumber="";      // Номер маршрута (напр. 13в)
     @Getter private int careRouteId=0;          // График - номер на маршруте
-    @Getter private ArrayList<String> rasp = new ArrayList<>();     //
+    @Getter private ArrayList<String> rasp = new ArrayList<>();             //
+    @Getter private ArrayList<TCarePoint> careStory = new ArrayList<>();    // История
+    //------------------------------------------------------------------------------
     public String getCareKey(){
         return tType+"_"+routeNumber+"_"+careRouteId;
         }
@@ -30,7 +32,6 @@ public class TCare extends Entity {
     public TCarePoint lastPoint(){
         return careStory.size()==0 ? new TCarePoint() : careStory.get(careStory.size()-1);
         }
-    @Getter private ArrayList<TCarePoint> careStory = new ArrayList<>();
 
     public TCare(boolean full,int tType0, String routeNumber0, GorTransCare src){
         tType = tType0;

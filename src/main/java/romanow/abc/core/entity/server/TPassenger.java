@@ -14,7 +14,8 @@ public class TPassenger {
     public TPassenger(User user0){
         user = user0;
         }
-    public void squeezy(int hours){             // Сжать историю до нужного интервала в часах
+    // Сжать историю до нужного интервала в часах force - игнорировать onCare
+    public void squeezy(int hours){
         int sz = passengerStory.size();
         if (sz<=1)
             return;
