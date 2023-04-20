@@ -166,10 +166,12 @@ public class Values extends ValuesBase {
     public final static int PPStateContinue = 4;
     @CONST(group = "PPState", title = "Не движется")
     public final static int PPStateNotMoving = 5;
+    @CONST(group = "PPState", title = "Не движется")
+    public final static int PPStateOnStop = 6;
     @CONST(group = "PPState", title = "Промежуточная+")
-    public final static int PPStateSecondOn = 6;
+    public final static int PPStateSecondOn = 7;
     @CONST(group = "PPState", title = "Промежуточная-")
-    public final static int PPStateSecondOff = 7;
+    public final static int PPStateSecondOff = 8;
     //-------------------------------------------------------------------------------------------
     public static void main(String a[]){
         Values.init();

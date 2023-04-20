@@ -14,13 +14,12 @@ public class TPassengerPoint {
     @Getter private GPSPoint gps;                           // Здесь же = серверное время
     @Getter private Float azimuth=null;
     @Getter private Float speed=null;
-    @Getter @Setter private TCare care=null;
-    @Getter @Setter private int state = Values.PPStateNone;
+    @Getter @Setter private int state = Values.PPStateNone; // Доп. состояние
+    @Getter @Setter boolean onBoard=false;                  // Базовое состояние
     @Getter @Setter private Distantion distantion=null;     // Данные привязки к маршруту
     public TPassengerPoint(){}
     public boolean hasSpeed(){return speed!=null; }
     public boolean hasAzimuth(){return azimuth!=null; }
-    public boolean onCare(){return care!=null; }
     public TPassengerPoint(GPSPoint gps0, Float speed0, Float azimuth0){
         gps = gps0;
         speed = speed0;

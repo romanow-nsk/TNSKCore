@@ -181,7 +181,6 @@ public class TCare extends Entity {
             return errors;
             }
         point.setState(Values.PPStateOnBoard);
-        point.setCare(this);
         errors.addInfo("до маршрута "+(int)distantion.distToLine+" до борта "+(int)way);
         return errors;
         }
@@ -190,7 +189,12 @@ public class TCare extends Entity {
     // 2. Привязываем к маршруту, определяем разницу путем и времен, корректируем путь
     // 3. Отмечаем найденные точки по критерию расстояния, времени (привязана, не привязана)
     // 4. Между привязанными точками выполняется вторичная привязка
-    public ErrorList searchInRoute2(TPassenger passenger, int routeDistance, double carePassDistance) {
+    // int routeDistance - отклонение от маршрута (длина перпендикуляра)
+    // double carePassDistance - расстояние между бротом и пассажиром ПО ДЛИНЕ МАРШРУТА
+    // double speedDiff - разность скоростей борта и пассажира
+    // double speedMax - максимальная скорость пешком
+    // Фиксируется только ДВИЖЕНИЕ СОВМЕСТНО С БОРТОМ
+    public ErrorList searchInRoute2(TPassenger passenger, int routeDistance, double carePassDistance, double speedDiff, double speedMax) {
         ErrorList errors = new ErrorList();
         if (careStory.size()==0){
             errors.addError("Нет истории борта");
@@ -201,7 +205,7 @@ public class TCare extends Entity {
             return errors;
             }
         for (TPassengerPoint point : passenger.getPassengerStory()){
-            point.setState(Values.PPStateNone);
+            point.setOnBoard(false);
             }
         ArrayList<Integer> idxList = new ArrayList<>();
         for (TCarePoint carePoint : careStory){
@@ -220,8 +224,50 @@ public class TCare extends Entity {
             double timeDiff = (carePoint.getGps().geoTime().timeInMS()-point.getGps().geoTime().timeInMS())/1000.;      // Разница в секундах
             double speed = carePoint.getSpeed()/3.6;                                    // в м/сек
             routeDiff -= speed * timeDiff;                                              // Коррекция по разнице времени и скорости
-            passOnRoute = passOnRoute && Math.abs(routeDiff) < carePassDistance;
-            point.setState(passOnRoute ? Values.PPStateOnBoard : Values.PPStateOffBoard);
+            passOnRoute = passOnRoute && Math.abs(routeDiff) < carePassDistance;        // Критерий близости по пути маршрута
+                                                                                        // Критерий близости по разности скоростей
+            passOnRoute = passOnRoute && Math.abs(carePoint.getSpeed()-point.getSpeed()) < speedDiff;
+            passOnRoute = passOnRoute && point.getSpeed() < speedMax;                   // Критерий по скорости пешехода
+                    point.setOnBoard(passOnRoute);
+            }
+        if (idxList.size()==0){
+            errors.addError("Нет пересечений с бортом");
+            return errors;
+            }
+        int lim = idxList.get(0);
+        TPassengerPoint point = passenger.getPassengerStory().get(lim);
+        for(int i=0;i<lim;i++){             // Промежуточные до первого совпадения
+            TPassengerPoint point2 = passenger.getPassengerStory().get(i);
+            point2.setOnBoard(false);
+            if (point.isOnBoard()){
+                Distantion distantion = route.createRoutePoint(point2.getGps());
+                if (distantion.done && distantion.distToLine < routeDistance && point2.getSpeed() < speedMax)
+                    point2.setOnBoard(true);
+                }
+            }
+        lim = idxList.get(idxList.size()-1);
+        point = passenger.getPassengerStory().get(lim);
+        for(int i=lim+1;i<passenger.getPassengerStory().size();i++){      // Промежуточные после последнего совпадения
+            TPassengerPoint point2 = passenger.getPassengerStory().get(i);
+            point2.setOnBoard(false);
+            if (point.isOnBoard()){
+                Distantion distantion = route.createRoutePoint(point2.getGps());
+                if (distantion.done && distantion.distToLine < routeDistance && point2.getSpeed() < speedMax)
+                    point2.setOnBoard(true);
+                }
+            }
+        for(int idx=0; idx<idxList.size()-1;idx++){
+            point = passenger.getPassengerStory().get(idxList.get(idx));
+            TPassengerPoint point1 = passenger.getPassengerStory().get(idxList.get(idx+1));
+            for(int jj=idxList.get(idx)+1; jj<idxList.get(idx+1);jj++){ // Промежуточные между парой совпадений
+                TPassengerPoint point2 = passenger.getPassengerStory().get(jj);
+                point2.setOnBoard(false);
+                if (point.isOnBoard() || point1.isOnBoard()){               // Хотя бы один на маршруте
+                    Distantion distantion = route.createRoutePoint(point2.getGps());
+                    if (distantion.done && distantion.distToLine < routeDistance && point2.getSpeed() < speedMax)
+                        point2.setOnBoard(true);
+                    }
+                }
             }
         return  errors;
         }

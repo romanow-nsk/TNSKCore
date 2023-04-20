@@ -2,6 +2,7 @@ package romanow.abc.core.entity.server;
 
 import lombok.Getter;
 import lombok.Setter;
+import romanow.abc.core.ErrorList;
 import romanow.abc.core.entity.users.User;
 import romanow.abc.core.utils.OwnDateTime;
 
@@ -51,4 +52,28 @@ public class TPassenger {
             }
         return k;
         }
-}
+    public ErrorList getRouteInfo(){
+        ErrorList errors = new ErrorList();
+        errors.addInfo("История пассажира - "+passengerStory.size()+" точек, на  борту "+getPointsNumOnBoard());
+        int idx=0;
+        while(idx!=passengerStory.size()){
+            while (idx < passengerStory.size() && !passengerStory.get(idx).isOnBoard())
+                idx++;
+            if (idx==passengerStory.size())
+                break;
+            int first = idx;
+            while (idx < passengerStory.size() && passengerStory.get(idx).isOnBoard())
+                idx++;
+            errors.addInfo("На борту ["+(idx-first)+"] "+passengerStory.get(first).getGps().geoTime().timeToString()+"-"+passengerStory.get(idx-1).getGps().geoTime().timeToString());
+            }
+        return errors;
+        }
+    public int getPointsNumOnBoard(){
+        int cnt=0;
+        for(TPassengerPoint point : passengerStory)
+            if (point.isOnBoard())
+                cnt++;
+        return cnt;
+        }
+    }
+
