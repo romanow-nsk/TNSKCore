@@ -9,6 +9,7 @@ import retrofit2.Call;
 import retrofit2.http.*;
 import romanow.abc.core.entity.server.TCare;
 import romanow.abc.core.entity.server.TSegmentStatistic;
+import romanow.abc.core.entity.subjectarea.TRoute;
 import romanow.abc.core.entity.subjectarea.TSegment;
 import romanow.abc.core.prepare.DayCellList;
 import romanow.abc.core.prepare.WeekCellList;
@@ -40,6 +41,9 @@ public interface RestAPI {
     /** борт с историей */
     @GET("/api/tnsk/care/story")
     Call<TCare> getCareStory(@Header("SessionToken") String token,@Query("carekey") String careKey);
+    /** борт с историей */
+    @GET("/api/tnsk/route")
+    Call<TRoute> getRoute(@Header("SessionToken") String token, @Query("id") long id);
     /** сегмент со статистикой */
     @GET("/api/tnsk/segment/statistic")
     Call<TSegmentStatistic> getSegmentStatistic(@Header("SessionToken") String token, @Query("id") long id);
