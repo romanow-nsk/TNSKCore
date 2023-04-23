@@ -47,6 +47,9 @@ public interface RestAPI {
     /** сегмент со статистикой */
     @GET("/api/tnsk/segment/statistic")
     Call<TSegmentStatistic> getSegmentStatistic(@Header("SessionToken") String token, @Query("id") long id);
+    /** сегменты с точками */
+    @GET("/api/tnsk/segments")
+    Call<EntityRefList<TSegment>> getSegments(@Header("SessionToken") String token);
     /** Добавить группу к экзамену (создание EMTicket для студентов) */
     //@POST("/api/rating/group/add")
     //Call<JLong> addGroupToDiscipline(@Header("SessionToken") String token, @Body() SAGroupRating rating);

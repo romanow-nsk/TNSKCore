@@ -1,6 +1,7 @@
 package romanow.abc.core.entity.server;
 
 import lombok.Getter;
+import lombok.Setter;
 import romanow.abc.core.prepare.DayCellList;
 
 import java.util.ArrayList;

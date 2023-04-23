@@ -39,6 +39,7 @@ public class TCare extends Entity {
         return careStory.size()==0 ? new TCarePoint() : careStory.get(careStory.size()-1);
         }
 
+    public TCare(){}
     public TCare(boolean full,int tType0, String routeNumber0, GorTransCare src, TRoute route0){
         route = route0;
         tType = tType0;
